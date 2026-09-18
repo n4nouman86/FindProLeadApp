@@ -8,6 +8,8 @@ import SubsidiariesPage from "./features/subsidiaries/SubsidiariesPage";
 import VerifierAgenciesPage from "./features/verifierAgencies/VerifierAgenciesPage";
 import AutoInsuranceAgenciesPage from "./features/autoInsuranceAgencies/AutoInsuranceAgenciesPage";
 import AutoInsuranceCompaniesPage from "./features/autoInsuranceCompanies/AutoInsuranceCompaniesPage";
+import VehicleMakesPage from "./features/vehicleMakes/VehicleMakesPage";
+import VehicleModelsPage from "./features/vehicleModels/VehicleModelsPage";
 import AppLayout from "./shared/layout/AppLayout";
 import { NotificationProvider } from "./shared/notifications/NotificationProvider";
 
@@ -31,6 +33,8 @@ function App() {
               <Route path="/verifier-agencies" element={<VerifierAgenciesPage />} />
               <Route path="/auto-insurance-agencies" element={<AutoInsuranceAgenciesPage />} />
               <Route path="/auto-insurance-companies" element={<AutoInsuranceCompaniesPage />} />
+              <Route path="/vehicle-makes" element={<VehicleMakesPage />} />
+              <Route path="/vehicle-models" element={<VehicleModelsPage />} />
             </Route>
           </Routes>
         </BrowserRouter>

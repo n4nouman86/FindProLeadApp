@@ -1,0 +1,83 @@
+import { useState, type SubmitEvent } from "react";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Box,
+  TextField,
+  Button,
+  IconButton,
+  Alert,
+} from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+import type { VehicleModel } from "./types";
+import { updateVehicleModel } from "./vehicleModelsApi";
+import { useNotification } from "../../shared/notifications/useNotification";
+import { getErrorMessage } from "../../shared/api/apiClient";
+
+interface EditVehicleModelDialogProps {
+  open: boolean;
+  model: VehicleModel;
+  onClose: () => void;
+  onSaved: (model: VehicleModel) => void;
+}
+
+export default function EditVehicleModelDialog({ open, model, onClose, onSaved }: EditVehicleModelDialogProps) {
+  const [name, setName] = useState(model.name);
+  const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
+  const { notify } = useNotification();
+
+  async function handleSubmit(e: SubmitEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError("");
+    setSaving(true);
+    try {
+      const saved = await updateVehicleModel(model.id, { name });
+      onSaved(saved);
+      onClose();
+      notify("Vehicle model updated successfully.");
+    } catch (err) {
+      const message = getErrorMessage(err, "Could not update vehicle model. Please check the details and try again.");
+      setError(message);
+      notify(message, "error");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+      <Box component="form" onSubmit={handleSubmit}>
+        <DialogTitle sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          Edit Vehicle Model
+          <IconButton onClick={onClose} size="small">
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </DialogTitle>
+
+        <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2, pt: "20px !important" }}>
+          <TextField
+            label="Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+            fullWidth
+          />
+
+          {error && <Alert severity="error">{error}</Alert>}
+        </DialogContent>
+
+        <DialogActions sx={{ px: 3, pb: 2.5 }}>
+          <Button variant="outlined" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button type="submit" variant="contained" disabled={saving}>
+            {saving ? "Updating..." : "Update"}
+          </Button>
+        </DialogActions>
+      </Box>
+    </Dialog>
+  );
+}

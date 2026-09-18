@@ -5,7 +5,7 @@ export function getTheme(mode: PaletteMode) {
     palette: {
       mode,
       primary: {
-        main: mode === "light" ? "#4f46e5" : "#818cf8",
+        main: mode === "light" ? "#2563eb" : "#60a5fa",
         contrastText: "#ffffff",
       },
       secondary: {

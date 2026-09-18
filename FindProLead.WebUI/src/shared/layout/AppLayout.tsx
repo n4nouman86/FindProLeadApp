@@ -10,6 +10,7 @@ import {
   ListItemIcon,
   ListItemText,
   Box,
+  Collapse,
   IconButton,
   Menu,
   MenuItem,
@@ -23,6 +24,11 @@ import BusinessIcon from "@mui/icons-material/Business";
 import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
 import ApartmentIcon from "@mui/icons-material/Apartment";
 import ShieldIcon from "@mui/icons-material/Shield";
+import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
+import TimeToLeaveIcon from "@mui/icons-material/TimeToLeave";
+import SettingsIcon from "@mui/icons-material/Settings";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import LogoutIcon from "@mui/icons-material/Logout";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
@@ -40,7 +46,12 @@ const navItems = [
   { label: "Subsidiaries", path: "/subsidiaries", icon: <BusinessIcon /> },
   { label: "Verifier Agencies", path: "/verifier-agencies", icon: <VerifiedUserIcon /> },
   { label: "Auto Insurance Agencies", path: "/auto-insurance-agencies", icon: <ApartmentIcon /> },
+];
+
+const autoLeadSettingItems = [
   { label: "Auto Insurance Companies", path: "/auto-insurance-companies", icon: <ShieldIcon /> },
+  { label: "Vehicle Makes", path: "/vehicle-makes", icon: <DirectionsCarIcon /> },
+  { label: "Vehicle Models", path: "/vehicle-models", icon: <TimeToLeaveIcon /> },
 ];
 
 export default function AppLayout() {
@@ -50,6 +61,7 @@ export default function AppLayout() {
   const location = useLocation();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [collapsed, setCollapsed] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(true);
 
   function handleLogout() {
     setAnchorEl(null);
@@ -112,6 +124,45 @@ export default function AppLayout() {
               </ListItemButton>
             </Tooltip>
           ))}
+
+          <Tooltip title={collapsed ? "Auto Lead Setting" : ""} placement="right">
+            <ListItemButton
+              selected={autoLeadSettingItems.some((item) => item.path === location.pathname)}
+              onClick={() => {
+                if (collapsed) {
+                  setCollapsed(false);
+                  setSettingsOpen(true);
+                } else {
+                  setSettingsOpen((prev) => !prev);
+                }
+              }}
+              sx={{ borderRadius: 2, mb: 0.5, justifyContent: collapsed ? "center" : "flex-start" }}
+            >
+              <ListItemIcon sx={{ minWidth: collapsed ? 0 : 40, justifyContent: "center" }}>
+                <SettingsIcon />
+              </ListItemIcon>
+              {!collapsed && <ListItemText primary="Auto Lead Setting" />}
+              {!collapsed && (settingsOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />)}
+            </ListItemButton>
+          </Tooltip>
+
+          <Collapse in={settingsOpen && !collapsed} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding>
+              {autoLeadSettingItems.map((item) => (
+                <ListItemButton
+                  key={item.path}
+                  selected={location.pathname === item.path}
+                  onClick={() => navigate(item.path)}
+                  sx={{ borderRadius: 2, mb: 0.5, pl: 4 }}
+                >
+                  <ListItemIcon sx={{ minWidth: 40, justifyContent: "center" }}>
+                    {item.icon}
+                  </ListItemIcon>
+                  <ListItemText primary={item.label} />
+                </ListItemButton>
+              ))}
+            </List>
+          </Collapse>
         </List>
       </Drawer>
 
