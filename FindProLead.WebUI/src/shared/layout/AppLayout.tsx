@@ -10,6 +10,7 @@ import {
   ListItemIcon,
   ListItemText,
   Box,
+  Button,
   Collapse,
   IconButton,
   Menu,
@@ -34,11 +35,12 @@ import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import MenuIcon from "@mui/icons-material/Menu";
+import { alpha, type Theme } from "@mui/material/styles";
 import { useAuth } from "../../features/auth/useAuth";
 import { useThemeMode } from "../useThemeMode";
 
-const DRAWER_WIDTH = 280;
-const DRAWER_WIDTH_COLLAPSED = 72;
+const DRAWER_WIDTH = 264;
+const DRAWER_WIDTH_COLLAPSED = 76;
 
 const navItems = [
   { label: "Dashboard", path: "/", icon: <DashboardIcon /> },
@@ -53,6 +55,96 @@ const autoLeadSettingItems = [
   { label: "Vehicle Makes", path: "/vehicle-makes", icon: <DirectionsCarIcon /> },
   { label: "Vehicle Models", path: "/vehicle-models", icon: <TimeToLeaveIcon /> },
 ];
+
+function navButtonSx(collapsed: boolean) {
+  return (theme: Theme) => ({
+    position: "relative",
+    borderRadius: 0,
+    mb: 0.25,
+    px: collapsed ? 0 : 1.25,
+    py: 0.75,
+    gap: collapsed ? 0 : 0.75,
+    justifyContent: collapsed ? "center" : "flex-start",
+    color: "text.secondary",
+    transition: theme.transitions.create(["background-color", "color"], {
+      duration: 150,
+    }),
+    "& .MuiListItemIcon-root": {
+      minWidth: 0,
+      justifyContent: "center",
+      color: "inherit",
+      "& svg": { fontSize: 20 },
+    },
+    "& .MuiListItemText-primary": {
+      fontSize: "0.8rem",
+      fontWeight: 500,
+    },
+    "&:hover": {
+      bgcolor: alpha(theme.palette.primary.main, 0.07),
+      color: "text.primary",
+    },
+    "&::before": {
+      content: '""',
+      position: "absolute",
+      left: 0,
+      top: 0,
+      height: "100%",
+      width: 3,
+      backgroundColor: "transparent",
+      transition: theme.transitions.create("background-color", { duration: 150 }),
+    },
+    "&.Mui-selected": {
+      bgcolor: alpha(theme.palette.primary.main, 0.09),
+      color: "primary.main",
+      "& .MuiListItemText-primary": { fontWeight: 600 },
+      "&::before": { backgroundColor: theme.palette.primary.main },
+      "&:hover": { bgcolor: alpha(theme.palette.primary.main, 0.13) },
+    },
+  });
+}
+
+function BrandMark({ collapsed }: { collapsed: boolean }) {
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        gap: 1.5,
+        height: 64,
+        px: collapsed ? 0 : 2,
+        justifyContent: collapsed ? "center" : "flex-start",
+        flexShrink: 0,
+      }}
+    >
+      <Box
+        sx={{
+          width: 38,
+          height: 38,
+          borderRadius: 2.5,
+          flexShrink: 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "linear-gradient(135deg, #4f46e5 0%, #0ea5e9 100%)",
+          color: "#fff",
+          boxShadow: "0 4px 14px rgba(79, 70, 229, 0.35)",
+        }}
+      >
+        <TrendingUpIcon fontSize="small" />
+      </Box>
+      {!collapsed && (
+        <Box sx={{ minWidth: 0 }}>
+          <Typography sx={{ fontWeight: 800, lineHeight: 1.15, letterSpacing: "-0.01em" }}>
+            FindProLead
+          </Typography>
+          <Typography variant="caption" color="text.secondary" sx={{ display: "block", lineHeight: 1.1 }}>
+            Lead Management
+          </Typography>
+        </Box>
+      )}
+    </Box>
+  );
+}
 
 export default function AppLayout() {
   const { user, logout } = useAuth();
@@ -70,6 +162,10 @@ export default function AppLayout() {
   }
 
   const drawerWidth = collapsed ? DRAWER_WIDTH_COLLAPSED : DRAWER_WIDTH;
+  const currentTitle = [...navItems, ...autoLeadSettingItems].find(
+    (item) => item.path === location.pathname,
+  )?.label;
+  const initials = `${user?.firstName?.[0] ?? ""}${user?.lastName?.[0] ?? ""}`.toUpperCase();
 
   return (
     <Box sx={{ display: "flex", minHeight: "100vh" }}>
@@ -88,6 +184,8 @@ export default function AppLayout() {
             width: drawerWidth,
             boxSizing: "border-box",
             overflowX: "hidden",
+            display: "flex",
+            flexDirection: "column",
             transition: (theme) =>
               theme.transitions.create("width", {
                 easing: theme.transitions.easing.sharp,
@@ -96,108 +194,233 @@ export default function AppLayout() {
           },
         }}
       >
-        <Toolbar sx={{ gap: 1 }}>
-          <TrendingUpIcon color="primary" />
-          {!collapsed && (
-            <Typography variant="h6" sx={{ fontWeight: 700 }}>
-              FindProLead
-            </Typography>
-          )}
-        </Toolbar>
+        <BrandMark collapsed={collapsed} />
         <Divider />
-        <List sx={{ px: 1, pt: 1 }}>
-          {navItems.map((item) => (
-            <Tooltip
-              key={item.path}
-              title={collapsed ? item.label : ""}
-              placement="right"
-            >
-              <ListItemButton
-                selected={location.pathname === item.path}
-                onClick={() => navigate(item.path)}
-                sx={{ borderRadius: 2, mb: 0.5, justifyContent: collapsed ? "center" : "flex-start" }}
+
+        <Box sx={{ flexGrow: 1, overflowY: "auto", overflowX: "hidden" }}>
+          <List sx={{ px: collapsed ? 1 : 1.5, pt: 1.5 }}>
+            {!collapsed && (
+              <Typography
+                variant="overline"
+                color="text.secondary"
+                sx={{ px: 1.5, display: "block", fontSize: "0.62rem" }}
               >
-                <ListItemIcon sx={{ minWidth: collapsed ? 0 : 40, justifyContent: "center" }}>
-                  {item.icon}
-                </ListItemIcon>
-                {!collapsed && <ListItemText primary={item.label} />}
-              </ListItemButton>
-            </Tooltip>
-          ))}
-
-          <Tooltip title={collapsed ? "Auto Lead Setting" : ""} placement="right">
-            <ListItemButton
-              selected={autoLeadSettingItems.some((item) => item.path === location.pathname)}
-              onClick={() => {
-                if (collapsed) {
-                  setCollapsed(false);
-                  setSettingsOpen(true);
-                } else {
-                  setSettingsOpen((prev) => !prev);
-                }
-              }}
-              sx={{ borderRadius: 2, mb: 0.5, justifyContent: collapsed ? "center" : "flex-start" }}
-            >
-              <ListItemIcon sx={{ minWidth: collapsed ? 0 : 40, justifyContent: "center" }}>
-                <SettingsIcon />
-              </ListItemIcon>
-              {!collapsed && <ListItemText primary="Auto Lead Setting" />}
-              {!collapsed && (settingsOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />)}
-            </ListItemButton>
-          </Tooltip>
-
-          <Collapse in={settingsOpen && !collapsed} timeout="auto" unmountOnExit>
-            <List component="div" disablePadding>
-              {autoLeadSettingItems.map((item) => (
+                Menu
+              </Typography>
+            )}
+            {navItems.map((item) => (
+              <Tooltip
+                key={item.path}
+                title={collapsed ? item.label : ""}
+                placement="right"
+                arrow
+              >
                 <ListItemButton
-                  key={item.path}
                   selected={location.pathname === item.path}
                   onClick={() => navigate(item.path)}
-                  sx={{ borderRadius: 2, mb: 0.5, pl: 4 }}
+                  sx={navButtonSx(collapsed)}
                 >
-                  <ListItemIcon sx={{ minWidth: 40, justifyContent: "center" }}>
-                    {item.icon}
-                  </ListItemIcon>
-                  <ListItemText primary={item.label} />
+                  <ListItemIcon>{item.icon}</ListItemIcon>
+                  {!collapsed && <ListItemText primary={item.label} />}
                 </ListItemButton>
-              ))}
-            </List>
-          </Collapse>
-        </List>
+              </Tooltip>
+            ))}
+
+            {!collapsed && (
+              <Typography
+                variant="overline"
+                color="text.secondary"
+                sx={{ px: 1.5, mt: 1.5, display: "block", fontSize: "0.62rem" }}
+              >
+                Auto Lead Setting
+              </Typography>
+            )}
+            <Tooltip title={collapsed ? "Auto Lead Setting" : ""} placement="right" arrow>
+              <ListItemButton
+                selected={autoLeadSettingItems.some((item) => item.path === location.pathname)}
+                onClick={() => {
+                  if (collapsed) {
+                    setCollapsed(false);
+                    setSettingsOpen(true);
+                  } else {
+                    setSettingsOpen((prev) => !prev);
+                  }
+                }}
+                sx={navButtonSx(collapsed)}
+              >
+                <ListItemIcon>
+                  <SettingsIcon />
+                </ListItemIcon>
+                {!collapsed && <ListItemText primary="Auto Lead Setting" />}
+                {!collapsed &&
+                  (settingsOpen ? (
+                    <ExpandLessIcon fontSize="small" />
+                  ) : (
+                    <ExpandMoreIcon fontSize="small" />
+                  ))}
+              </ListItemButton>
+            </Tooltip>
+
+            <Collapse in={settingsOpen && !collapsed} timeout="auto" unmountOnExit>
+              <List component="div" disablePadding>
+                {autoLeadSettingItems.map((item) => (
+                  <ListItemButton
+                    key={item.path}
+                    selected={location.pathname === item.path}
+                    onClick={() => navigate(item.path)}
+                    sx={[navButtonSx(false), { pl: 2 }]}
+                  >
+                    <ListItemIcon>{item.icon}</ListItemIcon>
+                    <ListItemText primary={item.label} />
+                  </ListItemButton>
+                ))}
+              </List>
+            </Collapse>
+          </List>
+        </Box>
       </Drawer>
 
-      <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
+      <Box
+        sx={{
+          flexGrow: 1,
+          display: "flex",
+          flexDirection: "column",
+          minWidth: 0,
+          minHeight: "100vh",
+          position: "relative",
+        }}
+      >
+        <Box
+          aria-hidden
+          sx={{
+            position: "fixed",
+            top: -140,
+            right: -100,
+            width: 460,
+            height: 460,
+            borderRadius: "50%",
+            pointerEvents: "none",
+            zIndex: 0,
+            background:
+              "radial-gradient(circle, rgba(20, 184, 166, 0.14) 0%, rgba(20, 184, 166, 0) 65%)",
+          }}
+        />
+        <Box
+          aria-hidden
+          sx={{
+            position: "fixed",
+            bottom: -180,
+            left: 220,
+            width: 380,
+            height: 380,
+            borderRadius: "50%",
+            pointerEvents: "none",
+            zIndex: 0,
+            background:
+              "radial-gradient(circle, rgba(245, 158, 11, 0.09) 0%, rgba(245, 158, 11, 0) 65%)",
+          }}
+        />
         <AppBar
-          position="static"
-          color="inherit"
+          position="sticky"
           elevation={0}
-          sx={{ borderBottom: 1, borderColor: "divider" }}
+          sx={(theme) => ({
+            borderBottom: 1,
+            borderColor: "divider",
+            bgcolor: alpha(theme.palette.background.default, 0.65),
+            backdropFilter: "blur(18px) saturate(1.6)",
+            WebkitBackdropFilter: "blur(18px) saturate(1.6)",
+            color: "text.primary",
+          })}
         >
           <Toolbar sx={{ justifyContent: "space-between", gap: 1 }}>
-            <IconButton onClick={() => setCollapsed((prev) => !prev)}>
-              <MenuIcon />
-            </IconButton>
-
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <IconButton onClick={toggleMode}>
-                {mode === "dark" ? <LightModeIcon /> : <DarkModeIcon />}
-              </IconButton>
-              <IconButton onClick={(e) => setAnchorEl(e.currentTarget)}>
-                <Avatar sx={{ width: 32, height: 32, bgcolor: "primary.main" }}>
-                  {user?.firstName?.[0]?.toUpperCase()}
-                </Avatar>
-              </IconButton>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+              <Tooltip title={collapsed ? "Expand sidebar" : "Collapse sidebar"}>
+                <IconButton onClick={() => setCollapsed((prev) => !prev)}>
+                  <MenuIcon />
+                </IconButton>
+              </Tooltip>
+              {currentTitle && (
+                <Typography
+                  variant="h6"
+                  sx={{ ml: 0.5, fontWeight: 700, display: { xs: "none", sm: "block" } }}
+                >
+                  {currentTitle}
+                </Typography>
+              )}
             </Box>
+
+            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+              <Tooltip title={mode === "dark" ? "Switch to light mode" : "Switch to dark mode"}>
+                <IconButton onClick={toggleMode}>
+                  {mode === "dark" ? <LightModeIcon /> : <DarkModeIcon />}
+                </IconButton>
+              </Tooltip>
+
+              <Button
+                color="inherit"
+                onClick={(e) => setAnchorEl(e.currentTarget)}
+                sx={{ textTransform: "none", borderRadius: 3, px: 1, py: 0.5, gap: 1.25 }}
+              >
+                <Avatar
+                  sx={{
+                    width: 34,
+                    height: 34,
+                    fontSize: 14,
+                    fontWeight: 700,
+                    background: "linear-gradient(135deg, #0d7a6f, #f59e0b)",
+                  }}
+                >
+                  {initials}
+                </Avatar>
+                <Box sx={{ display: { xs: "none", md: "block" }, textAlign: "left" }}>
+                  <Typography variant="body2" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
+                    {user?.firstName} {user?.lastName}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary" sx={{ lineHeight: 1 }}>
+                    {user?.roles?.[0] ?? "User"}
+                  </Typography>
+                </Box>
+              </Button>
+            </Box>
+
             <Menu
               anchorEl={anchorEl}
               open={Boolean(anchorEl)}
               onClose={() => setAnchorEl(null)}
+              transformOrigin={{ horizontal: "right", vertical: "top" }}
+              anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
             >
-              <MenuItem disabled>
-                {user?.firstName} {user?.lastName}
-              </MenuItem>
-              <Divider />
-              <MenuItem onClick={handleLogout}>
+              <Box sx={{ px: 2, py: 1.5, display: "flex", alignItems: "center", gap: 1.5 }}>
+                <Avatar
+                  sx={{
+                    width: 40,
+                    height: 40,
+                    fontSize: 15,
+                    fontWeight: 700,
+                    background: "linear-gradient(135deg, #0d7a6f, #f59e0b)",
+                  }}
+                >
+                  {initials}
+                </Avatar>
+                <Box>
+                  <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                    {user?.firstName} {user?.lastName}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    {user?.email}
+                  </Typography>
+                </Box>
+              </Box>
+              <Divider sx={{ my: 0.5 }} />
+              <MenuItem
+                onClick={handleLogout}
+                sx={{
+                  color: "error.main",
+                  mx: 0.5,
+                  borderRadius: 2,
+                  "& .MuiListItemIcon-root": { color: "error.main" },
+                }}
+              >
                 <ListItemIcon>
                   <LogoutIcon fontSize="small" />
                 </ListItemIcon>
@@ -207,7 +430,10 @@ export default function AppLayout() {
           </Toolbar>
         </AppBar>
 
-        <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+        <Box
+          component="main"
+          sx={{ flexGrow: 1, minWidth: 0, p: { xs: 2, md: 3.5 }, position: "relative", zIndex: 1 }}
+        >
           <Outlet />
         </Box>
       </Box>

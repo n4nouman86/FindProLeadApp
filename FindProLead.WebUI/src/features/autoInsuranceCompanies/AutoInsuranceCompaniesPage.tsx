@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   Box,
-  Typography,
   Button,
   Paper,
   Table,
@@ -9,16 +8,20 @@ import {
   TableBody,
   TableRow,
   TableCell,
+  TableContainer,
   IconButton,
-  CircularProgress,
   Alert,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
+import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
 import type { AutoInsuranceCompany } from "./types";
 import { getAutoInsuranceCompanies } from "./autoInsuranceCompaniesApi";
 import CreateAutoInsuranceCompanyDialog from "./CreateAutoInsuranceCompanyDialog";
 import EditAutoInsuranceCompanyDialog from "./EditAutoInsuranceCompanyDialog";
+import PageHeader from "../../shared/components/PageHeader";
+import EmptyState from "../../shared/components/EmptyState";
+import TableSkeleton from "../../shared/components/TableSkeleton";
 
 export default function AutoInsuranceCompaniesPage() {
   const [companies, setCompanies] = useState<AutoInsuranceCompany[]>([]);
@@ -56,14 +59,15 @@ export default function AutoInsuranceCompaniesPage() {
 
   return (
     <Box>
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-        <Typography variant="h4" sx={{ fontWeight: 700 }}>
-          Auto Insurance Companies
-        </Typography>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={() => setCreateOpen(true)}>
-          Add Company
-        </Button>
-      </Box>
+      <PageHeader
+        title="Auto Insurance Companies"
+        subtitle="Manage insurance carriers used for auto lead matching."
+        actions={
+          <Button variant="contained" startIcon={<AddIcon />} onClick={() => setCreateOpen(true)}>
+            Add Company
+          </Button>
+        }
+      />
 
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
@@ -71,25 +75,27 @@ export default function AutoInsuranceCompaniesPage() {
         </Alert>
       )}
 
-      <Paper variant="outlined">
-        {loading ? (
-          <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
-            <CircularProgress />
-          </Box>
-        ) : (
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Name</TableCell>
-                <TableCell>Created On</TableCell>
-                <TableCell align="right">Actions</TableCell>
-              </TableRow>
-            </TableHead>
+      <TableContainer component={Paper} variant="outlined">
+        <Table sx={{ minWidth: 640 }}>
+          <TableHead>
+            <TableRow>
+              <TableCell>Name</TableCell>
+              <TableCell>Created On</TableCell>
+              <TableCell align="right">Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          {loading ? (
+            <TableSkeleton columns={3} />
+          ) : (
             <TableBody>
               {companies.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={3} align="center">
-                    No auto insurance companies yet.
+                  <TableCell colSpan={3} sx={{ p: 0, border: 0 }}>
+                    <EmptyState
+                      icon={<ShieldOutlinedIcon />}
+                      title="No companies yet"
+                      subtitle='Click "Add Company" to add your first insurance company.'
+                    />
                   </TableCell>
                 </TableRow>
               ) : (
@@ -114,9 +120,9 @@ export default function AutoInsuranceCompaniesPage() {
                 ))
               )}
             </TableBody>
-          </Table>
-        )}
-      </Paper>
+          )}
+        </Table>
+      </TableContainer>
 
       <CreateAutoInsuranceCompanyDialog
         open={createOpen}

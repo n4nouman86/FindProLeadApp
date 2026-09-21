@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   Box,
-  Typography,
   Button,
   Paper,
   Table,
@@ -9,17 +8,21 @@ import {
   TableBody,
   TableRow,
   TableCell,
+  TableContainer,
   IconButton,
-  CircularProgress,
   Alert,
   Link,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
+import BusinessOutlinedIcon from "@mui/icons-material/BusinessOutlined";
 import type { Subsidiary } from "./types";
 import { getSubsidiaries } from "./subsidiariesApi";
 import CreateSubsidiaryDialog from "./CreateSubsidiaryDialog";
 import EditSubsidiaryDialog from "./EditSubsidiaryDialog";
+import PageHeader from "../../shared/components/PageHeader";
+import EmptyState from "../../shared/components/EmptyState";
+import TableSkeleton from "../../shared/components/TableSkeleton";
 
 export default function SubsidiariesPage() {
   const [subsidiaries, setSubsidiaries] = useState<Subsidiary[]>([]);
@@ -57,14 +60,15 @@ export default function SubsidiariesPage() {
 
   return (
     <Box>
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-        <Typography variant="h4" sx={{ fontWeight: 700 }}>
-          Subsidiaries
-        </Typography>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={() => setCreateOpen(true)}>
-          Add Subsidiary
-        </Button>
-      </Box>
+      <PageHeader
+        title="Subsidiaries"
+        subtitle="Manage subsidiary companies under your organization."
+        actions={
+          <Button variant="contained" startIcon={<AddIcon />} onClick={() => setCreateOpen(true)}>
+            Add Subsidiary
+          </Button>
+        }
+      />
 
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
@@ -72,29 +76,31 @@ export default function SubsidiariesPage() {
         </Alert>
       )}
 
-      <Paper variant="outlined">
-        {loading ? (
-          <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
-            <CircularProgress />
-          </Box>
-        ) : (
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Name</TableCell>
-                <TableCell>Website</TableCell>
-                <TableCell>Email</TableCell>
-                <TableCell>Phone</TableCell>
-                <TableCell>LinkedIn</TableCell>
-                <TableCell>Created On</TableCell>
-                <TableCell align="right">Actions</TableCell>
-              </TableRow>
-            </TableHead>
+      <TableContainer component={Paper} variant="outlined">
+        <Table sx={{ minWidth: 900 }}>
+          <TableHead>
+            <TableRow>
+              <TableCell>Name</TableCell>
+              <TableCell>Website</TableCell>
+              <TableCell>Email</TableCell>
+              <TableCell>Phone</TableCell>
+              <TableCell>LinkedIn</TableCell>
+              <TableCell>Created On</TableCell>
+              <TableCell align="right">Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          {loading ? (
+            <TableSkeleton columns={7} />
+          ) : (
             <TableBody>
               {subsidiaries.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} align="center">
-                    No subsidiaries yet.
+                  <TableCell colSpan={7} sx={{ p: 0, border: 0 }}>
+                    <EmptyState
+                      icon={<BusinessOutlinedIcon />}
+                      title="No subsidiaries yet"
+                      subtitle='Click "Add Subsidiary" to add your first subsidiary.'
+                    />
                   </TableCell>
                 </TableRow>
               ) : (
@@ -139,9 +145,9 @@ export default function SubsidiariesPage() {
                 ))
               )}
             </TableBody>
-          </Table>
-        )}
-      </Paper>
+          )}
+        </Table>
+      </TableContainer>
 
       <CreateSubsidiaryDialog
         open={createOpen}

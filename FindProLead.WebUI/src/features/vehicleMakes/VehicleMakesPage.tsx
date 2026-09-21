@@ -9,8 +9,8 @@ import {
   TableBody,
   TableRow,
   TableCell,
+  TableContainer,
   IconButton,
-  CircularProgress,
   Alert,
   Dialog,
   DialogTitle,
@@ -20,12 +20,16 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import DirectionsCarOutlinedIcon from "@mui/icons-material/DirectionsCarOutlined";
 import type { VehicleMake } from "./types";
 import { getVehicleMakes, deleteVehicleMake } from "./vehicleMakesApi";
 import { useNotification } from "../../shared/notifications/useNotification";
 import { getErrorMessage } from "../../shared/api/apiClient";
 import CreateVehicleMakeDialog from "./CreateVehicleMakeDialog";
 import EditVehicleMakeDialog from "./EditVehicleMakeDialog";
+import PageHeader from "../../shared/components/PageHeader";
+import EmptyState from "../../shared/components/EmptyState";
+import TableSkeleton from "../../shared/components/TableSkeleton";
 
 export default function VehicleMakesPage() {
   const [makes, setMakes] = useState<VehicleMake[]>([]);
@@ -82,14 +86,15 @@ export default function VehicleMakesPage() {
 
   return (
     <Box>
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-        <Typography variant="h4" sx={{ fontWeight: 700 }}>
-          Vehicle Makes
-        </Typography>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={() => setCreateOpen(true)}>
-          Add Make
-        </Button>
-      </Box>
+      <PageHeader
+        title="Vehicle Makes"
+        subtitle="Manage vehicle brands available for quotes."
+        actions={
+          <Button variant="contained" startIcon={<AddIcon />} onClick={() => setCreateOpen(true)}>
+            Add Make
+          </Button>
+        }
+      />
 
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
@@ -97,25 +102,27 @@ export default function VehicleMakesPage() {
         </Alert>
       )}
 
-      <Paper variant="outlined">
-        {loading ? (
-          <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
-            <CircularProgress />
-          </Box>
-        ) : (
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Name</TableCell>
-                <TableCell>Created On</TableCell>
-                <TableCell align="right">Actions</TableCell>
-              </TableRow>
-            </TableHead>
+      <TableContainer component={Paper} variant="outlined">
+        <Table sx={{ minWidth: 640 }}>
+          <TableHead>
+            <TableRow>
+              <TableCell>Name</TableCell>
+              <TableCell>Created On</TableCell>
+              <TableCell align="right">Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          {loading ? (
+            <TableSkeleton columns={3} />
+          ) : (
             <TableBody>
               {makes.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={3} align="center">
-                    No vehicle makes yet.
+                  <TableCell colSpan={3} sx={{ p: 0, border: 0 }}>
+                    <EmptyState
+                      icon={<DirectionsCarOutlinedIcon />}
+                      title="No vehicle makes yet"
+                      subtitle='Click "Add Make" to add your first vehicle make.'
+                    />
                   </TableCell>
                 </TableRow>
               ) : (
@@ -143,9 +150,9 @@ export default function VehicleMakesPage() {
                 ))
               )}
             </TableBody>
-          </Table>
-        )}
-      </Paper>
+          )}
+        </Table>
+      </TableContainer>
 
       <CreateVehicleMakeDialog
         open={createOpen}

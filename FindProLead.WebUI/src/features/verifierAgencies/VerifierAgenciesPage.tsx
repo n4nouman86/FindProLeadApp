@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   Box,
-  Typography,
   Button,
   Paper,
   Table,
@@ -9,17 +8,21 @@ import {
   TableBody,
   TableRow,
   TableCell,
+  TableContainer,
   IconButton,
-  CircularProgress,
   Alert,
   Link,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
+import VerifiedUserOutlinedIcon from "@mui/icons-material/VerifiedUserOutlined";
 import type { VerifierAgency } from "./types";
 import { getVerifierAgencies } from "./verifierAgenciesApi";
 import CreateVerifierAgencyDialog from "./CreateVerifierAgencyDialog";
 import EditVerifierAgencyDialog from "./EditVerifierAgencyDialog";
+import PageHeader from "../../shared/components/PageHeader";
+import EmptyState from "../../shared/components/EmptyState";
+import TableSkeleton from "../../shared/components/TableSkeleton";
 
 export default function VerifierAgenciesPage() {
   const [agencies, setAgencies] = useState<VerifierAgency[]>([]);
@@ -57,14 +60,15 @@ export default function VerifierAgenciesPage() {
 
   return (
     <Box>
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-        <Typography variant="h4" sx={{ fontWeight: 700 }}>
-          Verifier Agencies
-        </Typography>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={() => setCreateOpen(true)}>
-          Add Verifier Agency
-        </Button>
-      </Box>
+      <PageHeader
+        title="Verifier Agencies"
+        subtitle="Manage agencies that verify lead details before transfer."
+        actions={
+          <Button variant="contained" startIcon={<AddIcon />} onClick={() => setCreateOpen(true)}>
+            Add Verifier Agency
+          </Button>
+        }
+      />
 
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
@@ -72,28 +76,30 @@ export default function VerifierAgenciesPage() {
         </Alert>
       )}
 
-      <Paper variant="outlined">
-        {loading ? (
-          <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
-            <CircularProgress />
-          </Box>
-        ) : (
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Name</TableCell>
-                <TableCell>Website</TableCell>
-                <TableCell>Email</TableCell>
-                <TableCell>LinkedIn</TableCell>
-                <TableCell>Created On</TableCell>
-                <TableCell align="right">Actions</TableCell>
-              </TableRow>
-            </TableHead>
+      <TableContainer component={Paper} variant="outlined">
+        <Table sx={{ minWidth: 800 }}>
+          <TableHead>
+            <TableRow>
+              <TableCell>Name</TableCell>
+              <TableCell>Website</TableCell>
+              <TableCell>Email</TableCell>
+              <TableCell>LinkedIn</TableCell>
+              <TableCell>Created On</TableCell>
+              <TableCell align="right">Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          {loading ? (
+            <TableSkeleton columns={6} />
+          ) : (
             <TableBody>
               {agencies.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} align="center">
-                    No verifier agencies yet.
+                  <TableCell colSpan={6} sx={{ p: 0, border: 0 }}>
+                    <EmptyState
+                      icon={<VerifiedUserOutlinedIcon />}
+                      title="No verifier agencies yet"
+                      subtitle='Click "Add Verifier Agency" to add your first agency.'
+                    />
                   </TableCell>
                 </TableRow>
               ) : (
@@ -137,9 +143,9 @@ export default function VerifierAgenciesPage() {
                 ))
               )}
             </TableBody>
-          </Table>
-        )}
-      </Paper>
+          )}
+        </Table>
+      </TableContainer>
 
       <CreateVerifierAgencyDialog
         open={createOpen}

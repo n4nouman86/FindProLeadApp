@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   Box,
-  Typography,
   Button,
   Paper,
   Table,
@@ -9,18 +8,22 @@ import {
   TableBody,
   TableRow,
   TableCell,
+  TableContainer,
   IconButton,
-  CircularProgress,
   Alert,
   Link,
   Chip,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
+import ApartmentOutlinedIcon from "@mui/icons-material/ApartmentOutlined";
 import type { AutoInsuranceAgency } from "./types";
 import { getAutoInsuranceAgencies } from "./autoInsuranceAgenciesApi";
 import CreateAutoInsuranceAgencyDialog from "./CreateAutoInsuranceAgencyDialog";
 import EditAutoInsuranceAgencyDialog from "./EditAutoInsuranceAgencyDialog";
+import PageHeader from "../../shared/components/PageHeader";
+import EmptyState from "../../shared/components/EmptyState";
+import TableSkeleton from "../../shared/components/TableSkeleton";
 
 export default function AutoInsuranceAgenciesPage() {
   const [agencies, setAgencies] = useState<AutoInsuranceAgency[]>([]);
@@ -58,14 +61,15 @@ export default function AutoInsuranceAgenciesPage() {
 
   return (
     <Box>
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-        <Typography variant="h4" sx={{ fontWeight: 700 }}>
-          Auto Insurance Agencies
-        </Typography>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={() => setCreateOpen(true)}>
-          Add Auto Insurance Agency
-        </Button>
-      </Box>
+      <PageHeader
+        title="Auto Insurance Agencies"
+        subtitle="Manage buyer agencies, their daily capacity and coverage."
+        actions={
+          <Button variant="contained" startIcon={<AddIcon />} onClick={() => setCreateOpen(true)}>
+            Add Auto Insurance Agency
+          </Button>
+        }
+      />
 
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
@@ -73,35 +77,37 @@ export default function AutoInsuranceAgenciesPage() {
         </Alert>
       )}
 
-      <Paper variant="outlined">
-        {loading ? (
-          <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
-            <CircularProgress />
-          </Box>
-        ) : (
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Name</TableCell>
-                <TableCell>Subsidiary</TableCell>
-                <TableCell>Website</TableCell>
-                <TableCell>Email</TableCell>
-                <TableCell>Phone</TableCell>
-                <TableCell>Alternate Phone</TableCell>
-                <TableCell>Transfers Per Day</TableCell>
-                <TableCell>LinkedIn</TableCell>
-                <TableCell>States</TableCell>
-                <TableCell>Multi Cars</TableCell>
-                <TableCell>Home Owners</TableCell>
-                <TableCell>Created On</TableCell>
-                <TableCell align="right">Actions</TableCell>
-              </TableRow>
-            </TableHead>
+      <TableContainer component={Paper} variant="outlined">
+        <Table sx={{ minWidth: 1300 }}>
+          <TableHead>
+            <TableRow>
+              <TableCell>Name</TableCell>
+              <TableCell>Subsidiary</TableCell>
+              <TableCell>Website</TableCell>
+              <TableCell>Email</TableCell>
+              <TableCell>Phone</TableCell>
+              <TableCell>Alternate Phone</TableCell>
+              <TableCell>Transfers Per Day</TableCell>
+              <TableCell>LinkedIn</TableCell>
+              <TableCell>States</TableCell>
+              <TableCell>Multi Cars</TableCell>
+              <TableCell>Home Owners</TableCell>
+              <TableCell>Created On</TableCell>
+              <TableCell align="right">Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          {loading ? (
+            <TableSkeleton columns={13} />
+          ) : (
             <TableBody>
               {agencies.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={12} align="center">
-                    No auto insurance agencies yet.
+                  <TableCell colSpan={13} sx={{ p: 0, border: 0 }}>
+                    <EmptyState
+                      icon={<ApartmentOutlinedIcon />}
+                      title="No auto insurance agencies yet"
+                      subtitle='Click "Add Auto Insurance Agency" to add your first agency.'
+                    />
                   </TableCell>
                 </TableRow>
               ) : (
@@ -166,9 +172,9 @@ export default function AutoInsuranceAgenciesPage() {
                 ))
               )}
             </TableBody>
-          </Table>
-        )}
-      </Paper>
+          )}
+        </Table>
+      </TableContainer>
 
       <CreateAutoInsuranceAgencyDialog
         open={createOpen}
