@@ -19,7 +19,7 @@ import { useAuth } from "./useAuth";
 
 const features = [
   "Instant lead transfers to buyers",
-  "Subsidiary & verifier management",
+  "Subsidiary company & verifier management",
   "Real-time delivery tracking",
 ];
 

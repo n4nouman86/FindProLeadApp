@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using FindProLead.Api.Features.Subsidiaries;
+using FindProLead.Api.Features.SubsidiaryCompanies;
 
 namespace FindProLead.Api.Features.AutoInsuranceAgencies;
 
@@ -7,8 +7,8 @@ public class AutoInsuranceAgency
 {
     public int Id { get; set; }
     public Guid RowId { get; set; } = Guid.NewGuid();
-    public int SubsidiaryId { get; set; }
-    public Subsidiary? Subsidiary { get; set; }
+    public int SubsidiaryCompanyId { get; set; }
+    public SubsidiaryCompany? SubsidiaryCompany { get; set; }
 
     [MaxLength(50)]
     public string Name { get; set; } = string.Empty;

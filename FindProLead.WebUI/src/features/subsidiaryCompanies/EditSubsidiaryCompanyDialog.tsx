@@ -11,24 +11,25 @@ import {
   Alert,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import type { VerifierAgency } from "./types";
-import { updateVerifierAgency } from "./verifierAgenciesApi";
+import type { SubsidiaryCompany } from "./types";
+import { updateSubsidiaryCompany } from "./subsidiaryCompaniesApi";
 import { useNotification } from "../../shared/notifications/useNotification";
 import { getErrorMessage } from "../../shared/api/apiClient";
 
-interface EditVerifierAgencyDialogProps {
+interface EditSubsidiaryCompanyDialogProps {
   open: boolean;
-  agency: VerifierAgency;
+  subsidiary: SubsidiaryCompany;
   onClose: () => void;
-  onSaved: (agency: VerifierAgency) => void;
+  onSaved: (subsidiary: SubsidiaryCompany) => void;
 }
 
-export default function EditVerifierAgencyDialog({ open, agency, onClose, onSaved }: EditVerifierAgencyDialogProps) {
-  const [name, setName] = useState(agency.name);
-  const [website, setWebsite] = useState(agency.website ?? "");
-  const [email, setEmail] = useState(agency.email ?? "");
-  const [linkedin, setLinkedin] = useState(agency.linkedin ?? "");
-  const [memo, setMemo] = useState(agency.memo ?? "");
+export default function EditSubsidiaryCompanyDialog({ open, subsidiary, onClose, onSaved }: EditSubsidiaryCompanyDialogProps) {
+  const [name, setName] = useState(subsidiary.name);
+  const [website, setWebsite] = useState(subsidiary.website ?? "");
+  const [email, setEmail] = useState(subsidiary.email ?? "");
+  const [phone, setPhone] = useState(subsidiary.phone ?? "");
+  const [linkedin, setLinkedin] = useState(subsidiary.linkedin ?? "");
+  const [memo, setMemo] = useState(subsidiary.memo ?? "");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const { notify } = useNotification();
@@ -38,18 +39,19 @@ export default function EditVerifierAgencyDialog({ open, agency, onClose, onSave
     setError("");
     setSaving(true);
     try {
-      const saved = await updateVerifierAgency(agency.id, {
+      const saved = await updateSubsidiaryCompany(subsidiary.id, {
         name,
         website: website || undefined,
         email: email || undefined,
+        phone: phone || undefined,
         linkedin: linkedin || undefined,
         memo: memo || undefined,
       });
       onSaved(saved);
       onClose();
-      notify("Verifier agency updated successfully.");
+      notify("Subsidiary company updated successfully.");
     } catch (err) {
-      const message = getErrorMessage(err, "Could not update verifier agency. Please check the details and try again.");
+      const message = getErrorMessage(err, "Could not update the subsidiary company. Please check the details and try again.");
       setError(message);
       notify(message, "error");
     } finally {
@@ -61,7 +63,7 @@ export default function EditVerifierAgencyDialog({ open, agency, onClose, onSave
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <Box component="form" onSubmit={handleSubmit}>
         <DialogTitle sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          Edit Verifier Agency
+          Edit Subsidiary Company
           <IconButton onClick={onClose} size="small">
             <CloseIcon fontSize="small" />
           </IconButton>
@@ -88,6 +90,13 @@ export default function EditVerifierAgencyDialog({ open, agency, onClose, onSave
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            fullWidth
+          />
+
+          <TextField
+            label="Phone"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
             fullWidth
           />
 

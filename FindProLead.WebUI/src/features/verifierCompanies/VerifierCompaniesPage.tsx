@@ -11,33 +11,34 @@ import {
   TableContainer,
   IconButton,
   Alert,
+  Link,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
-import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
-import type { AutoInsuranceCompany } from "./types";
-import { getAutoInsuranceCompanies } from "./autoInsuranceCompaniesApi";
-import CreateAutoInsuranceCompanyDialog from "./CreateAutoInsuranceCompanyDialog";
-import EditAutoInsuranceCompanyDialog from "./EditAutoInsuranceCompanyDialog";
+import VerifiedUserOutlinedIcon from "@mui/icons-material/VerifiedUserOutlined";
+import type { VerifierCompany } from "./types";
+import { getVerifierCompanies } from "./verifierCompaniesApi";
+import CreateVerifierCompanyDialog from "./CreateVerifierCompanyDialog";
+import EditVerifierCompanyDialog from "./EditVerifierCompanyDialog";
 import PageHeader from "../../shared/components/PageHeader";
 import EmptyState from "../../shared/components/EmptyState";
 import TableSkeleton from "../../shared/components/TableSkeleton";
 
-export default function AutoInsuranceCompaniesPage() {
-  const [companies, setCompanies] = useState<AutoInsuranceCompany[]>([]);
+export default function VerifierCompaniesPage() {
+  const [companies, setCompanies] = useState<VerifierCompany[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [createOpen, setCreateOpen] = useState(false);
-  const [editingCompany, setEditingCompany] = useState<AutoInsuranceCompany | null>(null);
+  const [editingCompany, setEditingCompany] = useState<VerifierCompany | null>(null);
 
   const loadCompanies = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
-      const data = await getAutoInsuranceCompanies();
+      const data = await getVerifierCompanies();
       setCompanies(data);
     } catch {
-      setError("Could not load auto insurance companies.");
+      setError("Could not load verifier companies.");
     } finally {
       setLoading(false);
     }
@@ -48,11 +49,11 @@ export default function AutoInsuranceCompaniesPage() {
     loadCompanies();
   }, [loadCompanies]);
 
-  function handleSaved(saved: AutoInsuranceCompany) {
+  function handleSaved(saved: VerifierCompany) {
     setCompanies((prev) => {
-      const exists = prev.some((c) => c.id === saved.id);
+      const exists = prev.some((a) => a.id === saved.id);
       return exists
-        ? prev.map((c) => (c.id === saved.id ? saved : c))
+        ? prev.map((a) => (a.id === saved.id ? saved : a))
         : [saved, ...prev];
     });
   }
@@ -60,11 +61,11 @@ export default function AutoInsuranceCompaniesPage() {
   return (
     <Box>
       <PageHeader
-        title="Auto Insurance Companies"
-        subtitle="Manage insurance carriers used for auto lead matching."
+        title="Verifier Companies"
+        subtitle="Manage companies that verify lead details before transfer."
         actions={
           <Button variant="contained" startIcon={<AddIcon />} onClick={() => setCreateOpen(true)}>
-            Add Company
+            Add Verifier Company
           </Button>
         }
       />
@@ -76,34 +77,56 @@ export default function AutoInsuranceCompaniesPage() {
       )}
 
       <TableContainer component={Paper} variant="outlined">
-        <Table sx={{ minWidth: 640 }}>
+        <Table sx={{ minWidth: 800 }}>
           <TableHead>
             <TableRow>
               <TableCell>Name</TableCell>
+              <TableCell>Website</TableCell>
+              <TableCell>Email</TableCell>
+              <TableCell>LinkedIn</TableCell>
               <TableCell>Created On</TableCell>
               <TableCell align="right">Actions</TableCell>
             </TableRow>
           </TableHead>
           {loading ? (
-            <TableSkeleton columns={3} />
+            <TableSkeleton columns={6} />
           ) : (
             <TableBody>
               {companies.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={3} sx={{ p: 0, border: 0 }}>
+                  <TableCell colSpan={6} sx={{ p: 0, border: 0 }}>
                     <EmptyState
-                      icon={<ShieldOutlinedIcon />}
-                      title="No companies yet"
-                      subtitle='Click "Add Company" to add your first insurance company.'
+                      icon={<VerifiedUserOutlinedIcon />}
+                      title="No verifier companies yet"
+                      subtitle='Click "Add Verifier Company" to add your first company.'
                     />
                   </TableCell>
                 </TableRow>
               ) : (
-                companies.map((company) => (
-                  <TableRow key={company.id} hover>
-                    <TableCell>{company.name}</TableCell>
+                companies.map((agency) => (
+                  <TableRow key={agency.id} hover>
+                    <TableCell>{agency.name}</TableCell>
                     <TableCell>
-                      {new Date(company.createdOn).toLocaleString("en-US", {
+                      {agency.website ? (
+                        <Link href={agency.website} target="_blank" rel="noopener noreferrer">
+                          {agency.website}
+                        </Link>
+                      ) : (
+                        "—"
+                      )}
+                    </TableCell>
+                    <TableCell>{agency.email ?? "—"}</TableCell>
+                    <TableCell>
+                      {agency.linkedin ? (
+                        <Link href={agency.linkedin} target="_blank" rel="noopener noreferrer">
+                          Profile
+                        </Link>
+                      ) : (
+                        "—"
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {new Date(agency.createdOn).toLocaleString("en-US", {
                         month: "short",
                         day: "numeric",
                         year: "numeric",
@@ -112,7 +135,7 @@ export default function AutoInsuranceCompaniesPage() {
                       })}
                     </TableCell>
                     <TableCell align="right">
-                      <IconButton size="small" onClick={() => setEditingCompany(company)}>
+                      <IconButton size="small" onClick={() => setEditingCompany(agency)}>
                         <EditIcon fontSize="small" />
                       </IconButton>
                     </TableCell>
@@ -124,17 +147,17 @@ export default function AutoInsuranceCompaniesPage() {
         </Table>
       </TableContainer>
 
-      <CreateAutoInsuranceCompanyDialog
+      <CreateVerifierCompanyDialog
         open={createOpen}
         onClose={() => setCreateOpen(false)}
         onSaved={handleSaved}
       />
 
       {editingCompany && (
-        <EditAutoInsuranceCompanyDialog
+        <EditVerifierCompanyDialog
           key={editingCompany.id}
           open={Boolean(editingCompany)}
-          company={editingCompany}
+          agency={editingCompany}
           onClose={() => setEditingCompany(null)}
           onSaved={handleSaved}
         />

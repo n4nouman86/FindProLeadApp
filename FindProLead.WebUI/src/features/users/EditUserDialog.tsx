@@ -13,12 +13,10 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import type { User } from "./types";
-import type { Subsidiary } from "../subsidiaries/types";
-import type { VerifierAgency } from "../verifierAgencies/types";
+import type { VerifierCompany } from "../verifierCompanies/types";
 import type { AutoInsuranceAgency } from "../autoInsuranceAgencies/types";
 import { updateUser } from "./usersApi";
-import { getSubsidiaries } from "../subsidiaries/subsidiariesApi";
-import { getVerifierAgencies } from "../verifierAgencies/verifierAgenciesApi";
+import { getVerifierCompanies } from "../verifierCompanies/verifierCompaniesApi";
 import { getAutoInsuranceAgencies } from "../autoInsuranceAgencies/autoInsuranceAgenciesApi";
 import { useNotification } from "../../shared/notifications/useNotification";
 import { getErrorMessage } from "../../shared/api/apiClient";
@@ -34,11 +32,13 @@ export default function EditUserDialog({ open, user, onClose, onSaved }: EditUse
   const [firstName, setFirstName] = useState(user.firstName);
   const [lastName, setLastName] = useState(user.lastName);
   const [email, setEmail] = useState(user.email);
-  const [subsidiaryId, setSubsidiaryId] = useState(user.subsidiaryId ? String(user.subsidiaryId) : "");
-  const [verifierId, setVerifierId] = useState(user.verifierId ? String(user.verifierId) : "");
-  const [clientId, setClientId] = useState(user.clientId ? String(user.clientId) : "");
-  const [subsidiaries, setSubsidiaries] = useState<Subsidiary[]>([]);
-  const [verifiers, setVerifiers] = useState<VerifierAgency[]>([]);
+  const [role, setRole] = useState(user.role ?? "Agency Manager");
+  const [verifierId, setVerifierId] = useState(user.verifierCompanyId ? String(user.verifierCompanyId) : "");
+  const [clientId, setClientId] = useState(user.autoInsuranceAgencyId ? String(user.autoInsuranceAgencyId) : "");
+
+  const isVerifierRole = role === "Verifier Manager";
+  const isAgencyRole = role === "Agency Manager";
+  const [verifiers, setVerifiers] = useState<VerifierCompany[]>([]);
   const [clients, setClients] = useState<AutoInsuranceAgency[]>([]);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
@@ -46,8 +46,7 @@ export default function EditUserDialog({ open, user, onClose, onSaved }: EditUse
 
   useEffect(() => {
     if (open) {
-      getSubsidiaries().then(setSubsidiaries).catch(() => setSubsidiaries([]));
-      getVerifierAgencies().then(setVerifiers).catch(() => setVerifiers([]));
+      getVerifierCompanies().then(setVerifiers).catch(() => setVerifiers([]));
       getAutoInsuranceAgencies().then(setClients).catch(() => setClients([]));
     }
   }, [open]);
@@ -61,9 +60,9 @@ export default function EditUserDialog({ open, user, onClose, onSaved }: EditUse
         firstName,
         lastName,
         email,
-        subsidiaryId: subsidiaryId ? Number(subsidiaryId) : undefined,
-        verifierId: verifierId ? Number(verifierId) : undefined,
-        clientId: clientId ? Number(clientId) : undefined,
+        verifierCompanyId: verifierId ? Number(verifierId) : undefined,
+        autoInsuranceAgencyId: clientId ? Number(clientId) : undefined,
+        role: role || undefined,
       });
       onSaved(saved);
       onClose();
@@ -118,48 +117,59 @@ export default function EditUserDialog({ open, user, onClose, onSaved }: EditUse
 
           <TextField
             select
-            label="Subsidiary"
-            value={subsidiaryId}
-            onChange={(e) => setSubsidiaryId(e.target.value)}
+            label="Role"
+            value={role}
+            onChange={(e) => {
+              const nextRole = e.target.value;
+              setRole(nextRole);
+
+              if (nextRole === "Admin" || nextRole === "Verifier Manager" || nextRole === "Agency Manager") {
+                setVerifierId("");
+                setClientId("");
+              }
+            }}
             fullWidth
           >
-            <MenuItem value="">None</MenuItem>
-            {subsidiaries.map((s) => (
-              <MenuItem key={s.id} value={s.id}>
-                {s.name}
-              </MenuItem>
-            ))}
+            <MenuItem value="Admin">Admin</MenuItem>
+            <MenuItem value="Verifier Manager">Verifier Manager</MenuItem>
+            <MenuItem value="Agency Manager">Agency Manager</MenuItem>
           </TextField>
 
-          <TextField
-            select
-            label="Verifier Agency"
-            value={verifierId}
-            onChange={(e) => setVerifierId(e.target.value)}
-            fullWidth
-          >
-            <MenuItem value="">None</MenuItem>
-            {verifiers.map((v) => (
-              <MenuItem key={v.id} value={v.id}>
-                {v.name}
-              </MenuItem>
-            ))}
-          </TextField>
+          {isAgencyRole && (
+            <TextField
+              select
+              label="Agency Name"
+              value={clientId}
+              onChange={(e) => setClientId(e.target.value)}
+              required
+              fullWidth
+            >
+              <MenuItem value="">None</MenuItem>
+              {clients.map((c) => (
+                <MenuItem key={c.id} value={c.id}>
+                  {c.name}
+                </MenuItem>
+              ))}
+            </TextField>
+          )}
 
-          <TextField
-            select
-            label="Client Agency"
-            value={clientId}
-            onChange={(e) => setClientId(e.target.value)}
-            fullWidth
-          >
-            <MenuItem value="">None</MenuItem>
-            {clients.map((c) => (
-              <MenuItem key={c.id} value={c.id}>
-                {c.name}
-              </MenuItem>
-            ))}
-          </TextField>
+          {isVerifierRole && (
+            <TextField
+              select
+                label="Verifier Company"
+              value={verifierId}
+              onChange={(e) => setVerifierId(e.target.value)}
+              required
+              fullWidth
+            >
+              <MenuItem value="">None</MenuItem>
+              {verifiers.map((v) => (
+                <MenuItem key={v.id} value={v.id}>
+                  {v.name}
+                </MenuItem>
+              ))}
+            </TextField>
+          )}
 
           {error && <Alert severity="error">{error}</Alert>}
         </DialogContent>

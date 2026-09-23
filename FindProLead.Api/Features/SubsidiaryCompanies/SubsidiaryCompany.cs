@@ -1,8 +1,8 @@
-namespace FindProLead.Api.Features.Subsidiaries;
+namespace FindProLead.Api.Features.SubsidiaryCompanies;
 
 using System.ComponentModel.DataAnnotations;
 
-public class Subsidiary
+public class SubsidiaryCompany
 {
     public int Id { get; set; }
     public Guid RowId { get; set; } = Guid.NewGuid();

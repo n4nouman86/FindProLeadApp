@@ -18,23 +18,17 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet]
-    public ActionResult<IEnumerable<UserDto>> GetAll()
+    public async Task<ActionResult<IEnumerable<UserDto>>> GetAll()
     {
-        var users = _userManager.Users
-            .Select(u => new UserDto(
-                u.Id,
-                u.FirstName,
-                u.LastName,
-                u.Email!,
-                u.UserName!,
-                u.LockoutEnd != null && u.LockoutEnd > DateTimeOffset.UtcNow,
-                u.SubsidiaryId,
-                u.VerifierId,
-                u.ClientId,
-                u.CreatedOn))
-            .ToList();
+        var users = _userManager.Users.ToList();
+        var userDtos = new List<UserDto>();
 
-        return Ok(users);
+        foreach (var user in users)
+        {
+            userDtos.Add(await ToDto(user));
+        }
+
+        return Ok(userDtos);
     }
 
     [HttpGet("{id}")]
@@ -46,7 +40,7 @@ public class UsersController : ControllerBase
             return NotFound();
         }
 
-        return Ok(ToDto(user));
+        return Ok(await ToDto(user));
     }
 
     [HttpPost]
@@ -58,9 +52,8 @@ public class UsersController : ControllerBase
             Email = request.Email,
             FirstName = request.FirstName,
             LastName = request.LastName,
-            SubsidiaryId = request.SubsidiaryId,
-            VerifierId = request.VerifierId,
-            ClientId = request.ClientId
+            VerifierCompanyId = request.VerifierCompanyId,
+            AutoInsuranceAgencyId = request.AutoInsuranceAgencyId
         };
 
         var result = await _userManager.CreateAsync(user, request.Password);
@@ -74,7 +67,18 @@ public class UsersController : ControllerBase
             return ValidationProblem(ModelState);
         }
 
-        var dto = ToDto(user);
+        if (!string.IsNullOrWhiteSpace(request.Role))
+        {
+            var currentRoles = await _userManager.GetRolesAsync(user);
+            if (currentRoles.Count > 0)
+            {
+                await _userManager.RemoveFromRolesAsync(user, currentRoles);
+            }
+
+            await _userManager.AddToRoleAsync(user, request.Role);
+        }
+
+        var dto = await ToDto(user);
         return CreatedAtAction(nameof(GetById), new { id = user.Id }, dto);
     }
 
@@ -91,9 +95,8 @@ public class UsersController : ControllerBase
         user.LastName = request.LastName;
         user.Email = request.Email;
         user.UserName = request.Email;
-        user.SubsidiaryId = request.SubsidiaryId;
-        user.VerifierId = request.VerifierId;
-        user.ClientId = request.ClientId;
+        user.VerifierCompanyId = request.VerifierCompanyId;
+        user.AutoInsuranceAgencyId = request.AutoInsuranceAgencyId;
 
         var result = await _userManager.UpdateAsync(user);
         if (!result.Succeeded)
@@ -106,12 +109,26 @@ public class UsersController : ControllerBase
             return ValidationProblem(ModelState);
         }
 
-        return Ok(ToDto(user));
+        if (!string.IsNullOrWhiteSpace(request.Role))
+        {
+            var currentRoles = await _userManager.GetRolesAsync(user);
+            if (currentRoles.Count > 0)
+            {
+                await _userManager.RemoveFromRolesAsync(user, currentRoles);
+            }
+
+            await _userManager.AddToRoleAsync(user, request.Role);
+        }
+
+        return Ok(await ToDto(user));
     }
 
-    private static UserDto ToDto(ApplicationUser user)
+    private async Task<UserDto> ToDto(ApplicationUser user)
     {
         var isLocked = user.LockoutEnd != null && user.LockoutEnd > DateTimeOffset.UtcNow;
-        return new UserDto(user.Id, user.FirstName, user.LastName, user.Email!, user.UserName!, isLocked, user.SubsidiaryId, user.VerifierId, user.ClientId, user.CreatedOn);
+        var roles = await _userManager.GetRolesAsync(user);
+        var role = roles.FirstOrDefault();
+
+        return new UserDto(user.Id, user.FirstName, user.LastName, user.Email!, user.UserName!, isLocked, user.VerifierCompanyId, user.AutoInsuranceAgencyId, role, user.CreatedOn);
     }
 }

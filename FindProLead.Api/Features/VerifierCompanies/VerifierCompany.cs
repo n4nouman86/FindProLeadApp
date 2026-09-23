@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace FindProLead.Api.Features.VerifierAgencies;
+namespace FindProLead.Api.Features.VerifierCompanies;
 
-public class VerifierAgency
+public class VerifierCompany
 {
     public int Id { get; set; }
     public Guid RowId { get; set; } = Guid.NewGuid();

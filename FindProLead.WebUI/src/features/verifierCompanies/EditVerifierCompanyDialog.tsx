@@ -11,23 +11,24 @@ import {
   Alert,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import type { VerifierAgency } from "./types";
-import { createVerifierAgency } from "./verifierAgenciesApi";
+import type { VerifierCompany } from "./types";
+import { updateVerifierCompany } from "./verifierCompaniesApi";
 import { useNotification } from "../../shared/notifications/useNotification";
 import { getErrorMessage } from "../../shared/api/apiClient";
 
-interface CreateVerifierAgencyDialogProps {
+interface EditVerifierCompanyDialogProps {
   open: boolean;
+  agency: VerifierCompany;
   onClose: () => void;
-  onSaved: (agency: VerifierAgency) => void;
+  onSaved: (company: VerifierCompany) => void;
 }
 
-export default function CreateVerifierAgencyDialog({ open, onClose, onSaved }: CreateVerifierAgencyDialogProps) {
-  const [name, setName] = useState("");
-  const [website, setWebsite] = useState("");
-  const [email, setEmail] = useState("");
-  const [linkedin, setLinkedin] = useState("");
-  const [memo, setMemo] = useState("");
+export default function EditVerifierCompanyDialog({ open, agency, onClose, onSaved }: EditVerifierCompanyDialogProps) {
+  const [name, setName] = useState(agency.name);
+  const [website, setWebsite] = useState(agency.website ?? "");
+  const [email, setEmail] = useState(agency.email ?? "");
+  const [linkedin, setLinkedin] = useState(agency.linkedin ?? "");
+  const [memo, setMemo] = useState(agency.memo ?? "");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const { notify } = useNotification();
@@ -37,7 +38,7 @@ export default function CreateVerifierAgencyDialog({ open, onClose, onSaved }: C
     setError("");
     setSaving(true);
     try {
-      const saved = await createVerifierAgency({
+      const saved = await updateVerifierCompany(agency.id, {
         name,
         website: website || undefined,
         email: email || undefined,
@@ -46,9 +47,9 @@ export default function CreateVerifierAgencyDialog({ open, onClose, onSaved }: C
       });
       onSaved(saved);
       onClose();
-      notify("Verifier agency created successfully.");
+      notify("Verifier company updated successfully.");
     } catch (err) {
-      const message = getErrorMessage(err, "Could not create verifier agency. Please check the details and try again.");
+      const message = getErrorMessage(err, "Could not update the verifier company. Please check the details and try again.");
       setError(message);
       notify(message, "error");
     } finally {
@@ -60,7 +61,7 @@ export default function CreateVerifierAgencyDialog({ open, onClose, onSaved }: C
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <Box component="form" onSubmit={handleSubmit}>
         <DialogTitle sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          Add Verifier Agency
+          Edit Verifier Company
           <IconButton onClick={onClose} size="small">
             <CloseIcon fontSize="small" />
           </IconButton>
@@ -114,7 +115,7 @@ export default function CreateVerifierAgencyDialog({ open, onClose, onSaved }: C
             Cancel
           </Button>
           <Button type="submit" variant="contained" disabled={saving}>
-            {saving ? "Creating..." : "Create"}
+            {saving ? "Updating..." : "Update"}
           </Button>
         </DialogActions>
       </Box>

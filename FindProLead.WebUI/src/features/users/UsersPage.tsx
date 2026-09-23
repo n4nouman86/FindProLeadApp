@@ -12,12 +12,17 @@ import {
   IconButton,
   Alert,
   Chip,
+  Avatar,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import type { User } from "./types";
+import type { VerifierCompany } from "../verifierCompanies/types";
+import type { AutoInsuranceAgency } from "../autoInsuranceAgencies/types";
 import { getUsers } from "./usersApi";
+import { getVerifierCompanies } from "../verifierCompanies/verifierCompaniesApi";
+import { getAutoInsuranceAgencies } from "../autoInsuranceAgencies/autoInsuranceAgenciesApi";
 import CreateUserDialog from "./CreateUserDialog";
 import EditUserDialog from "./EditUserDialog";
 import PageHeader from "../../shared/components/PageHeader";
@@ -30,6 +35,26 @@ export default function UsersPage() {
   const [error, setError] = useState("");
   const [createOpen, setCreateOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [verifierCompanies, setVerifierCompanies] = useState<VerifierCompany[]>([]);
+  const [clientAgencies, setClientAgencies] = useState<AutoInsuranceAgency[]>([]);
+
+  const getOrganizationName = (user: User) => {
+    const verifierName = verifierCompanies.find((item) => item.id === user.verifierCompanyId)?.name;
+    const clientName = clientAgencies.find((item) => item.id === user.autoInsuranceAgencyId)?.name;
+
+    if (user.role === "Admin") return "Admin";
+    if (user.role === "Verifier Manager") return verifierName ? `Verifier Manager: ${verifierName}` : "Verifier Manager";
+    if (user.role === "Agency Manager") return clientName ? `Agency Manager: ${clientName}` : "Agency Manager";
+    if (verifierName) return `Verifier Manager: ${verifierName}`;
+    if (clientName) return `Agency Manager: ${clientName}`;
+    return "No Role";
+  };
+
+  const getInitials = (firstName: string, lastName: string) => {
+    const firstInitial = firstName?.trim()?.charAt(0)?.toUpperCase() ?? "";
+    const lastInitial = lastName?.trim()?.charAt(0)?.toUpperCase() ?? "";
+    return `${firstInitial}${lastInitial}` || "U";
+  };
 
   const loadUsers = useCallback(async () => {
     setLoading(true);
@@ -47,6 +72,8 @@ export default function UsersPage() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- initial data fetch on mount
     loadUsers();
+    getVerifierCompanies().then(setVerifierCompanies).catch(() => setVerifierCompanies([]));
+    getAutoInsuranceAgencies().then(setClientAgencies).catch(() => setClientAgencies([]));
   }, [loadUsers]);
 
   function handleSaved(saved: User) {
@@ -83,6 +110,7 @@ export default function UsersPage() {
               <TableCell>Name</TableCell>
               <TableCell>Username</TableCell>
               <TableCell>Email</TableCell>
+              <TableCell>Role</TableCell>
               <TableCell>Status</TableCell>
               <TableCell>Created On</TableCell>
               <TableCell align="right">Actions</TableCell>
@@ -94,7 +122,7 @@ export default function UsersPage() {
             <TableBody>
               {users.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} sx={{ p: 0, border: 0 }}>
+                  <TableCell colSpan={7} sx={{ p: 0, border: 0 }}>
                     <EmptyState
                       icon={<PeopleAltOutlinedIcon />}
                       title="No users yet"
@@ -106,10 +134,38 @@ export default function UsersPage() {
                 users.map((user) => (
                   <TableRow key={user.id} hover>
                     <TableCell>
-                      {user.firstName} {user.lastName}
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                        <Avatar
+                          sx={{
+                            width: 32,
+                            height: 32,
+                            fontSize: "0.8rem",
+                            bgcolor: user.role === "Admin" ? "primary.main" : user.role === "Verifier Manager" ? "secondary.main" : user.role === "Agency Manager" ? "warning.main" : "grey.500",
+                          }}
+                        >
+                          {getInitials(user.firstName, user.lastName)}
+                        </Avatar>
+                        <Box>{user.firstName} {user.lastName}</Box>
+                      </Box>
                     </TableCell>
                     <TableCell>{user.userName}</TableCell>
                     <TableCell>{user.email}</TableCell>
+                    <TableCell>
+                      <Chip
+                        label={getOrganizationName(user)}
+                        color={
+                          user.role === "Admin"
+                            ? "primary"
+                            : user.role === "Verifier Manager"
+                              ? "secondary"
+                              : user.role === "Agency Manager"
+                                ? "warning"
+                                : "default"
+                        }
+                        size="small"
+                        variant="outlined"
+                      />
+                    </TableCell>
                     <TableCell>
                       <Chip
                         label={user.isLocked ? "Locked" : "Active"}

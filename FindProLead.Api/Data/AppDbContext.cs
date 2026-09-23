@@ -1,12 +1,9 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using FindProLead.Api.Identity;
-using FindProLead.Api.Features.Subsidiaries;
-using FindProLead.Api.Features.VerifierAgencies;
+using FindProLead.Api.Features.SubsidiaryCompanies;
+using FindProLead.Api.Features.VerifierCompanies;
 using FindProLead.Api.Features.AutoInsuranceAgencies;
-using FindProLead.Api.Features.AutoInsuranceCompanies;
-using FindProLead.Api.Features.VehicleMakes;
-using FindProLead.Api.Features.VehicleModels;
 
 namespace FindProLead.Api.Data;
 
@@ -16,11 +13,8 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
     {
     }
 
-    public DbSet<Subsidiary> Subsidiaries { get; set; }
-    public DbSet<VerifierAgency> VerifierAgencies { get; set; }
+    public DbSet<SubsidiaryCompany> SubsidiaryCompanies { get; set; }
+    public DbSet<VerifierCompany> VerifierCompanies { get; set; }
     public DbSet<AutoInsuranceAgency> AutoInsuranceAgencies { get; set; }
-    public DbSet<AutoInsuranceCompany> AutoInsuranceCompanies { get; set; }
-    public DbSet<VehicleMake> VehicleMakes { get; set; }
-    public DbSet<VehicleModel> VehicleModels { get; set; }
 }
 

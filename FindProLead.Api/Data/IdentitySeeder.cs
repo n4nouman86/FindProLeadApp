@@ -10,9 +10,13 @@ public static class IdentitySeeder
         var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
 
-        if (!await roleManager.RoleExistsAsync("Admin"))
+        var roles = new[] { "Admin", "Verifier Manager", "Agency Manager" };
+        foreach (var roleName in roles)
         {
-            await roleManager.CreateAsync(new IdentityRole("Admin"));
+            if (!await roleManager.RoleExistsAsync(roleName))
+            {
+                await roleManager.CreateAsync(new IdentityRole(roleName));
+            }
         }
 
         const string adminEmail = "admin@findprolead.com";

@@ -21,7 +21,7 @@ public class AutoInsuranceAgenciesController : ControllerBase
     public async Task<ActionResult<IEnumerable<AutoInsuranceAgencyDto>>> GetAll()
     {
         var agencies = await _context.AutoInsuranceAgencies
-            .Include(a => a.Subsidiary)
+            .Include(a => a.SubsidiaryCompany)
             .OrderByDescending(a => a.CreatedOn)
             .Select(a => ToDto(a))
             .ToListAsync();
@@ -33,7 +33,7 @@ public class AutoInsuranceAgenciesController : ControllerBase
     public async Task<ActionResult<AutoInsuranceAgencyDto>> GetById(int id)
     {
         var agency = await _context.AutoInsuranceAgencies
-            .Include(a => a.Subsidiary)
+            .Include(a => a.SubsidiaryCompany)
             .FirstOrDefaultAsync(a => a.Id == id);
 
         if (agency is null)
@@ -47,16 +47,16 @@ public class AutoInsuranceAgenciesController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<AutoInsuranceAgencyDto>> Create(CreateAutoInsuranceAgencyRequest request)
     {
-        var subsidiaryExists = await _context.Subsidiaries.AnyAsync(s => s.Id == request.SubsidiaryId);
+        var subsidiaryExists = await _context.SubsidiaryCompanies.AnyAsync(s => s.Id == request.SubsidiaryCompanyId);
         if (!subsidiaryExists)
         {
-            ModelState.AddModelError(nameof(request.SubsidiaryId), "Subsidiary not found.");
+            ModelState.AddModelError(nameof(request.SubsidiaryCompanyId), "Subsidiary company not found.");
             return ValidationProblem(ModelState);
         }
 
         var agency = new AutoInsuranceAgency
         {
-            SubsidiaryId = request.SubsidiaryId,
+            SubsidiaryCompanyId = request.SubsidiaryCompanyId,
             Name = request.Name,
             Website = request.Website,
             Email = request.Email,
@@ -74,7 +74,7 @@ public class AutoInsuranceAgenciesController : ControllerBase
         _context.AutoInsuranceAgencies.Add(agency);
         await _context.SaveChangesAsync();
 
-        await _context.Entry(agency).Reference(a => a.Subsidiary).LoadAsync();
+        await _context.Entry(agency).Reference(a => a.SubsidiaryCompany).LoadAsync();
 
         var dto = ToDto(agency);
         return CreatedAtAction(nameof(GetById), new { id = agency.Id }, dto);
@@ -84,7 +84,7 @@ public class AutoInsuranceAgenciesController : ControllerBase
     public async Task<ActionResult<AutoInsuranceAgencyDto>> Update(int id, UpdateAutoInsuranceAgencyRequest request)
     {
         var agency = await _context.AutoInsuranceAgencies
-            .Include(a => a.Subsidiary)
+            .Include(a => a.SubsidiaryCompany)
             .FirstOrDefaultAsync(a => a.Id == id);
 
         if (agency is null)
@@ -92,14 +92,14 @@ public class AutoInsuranceAgenciesController : ControllerBase
             return NotFound();
         }
 
-        var subsidiaryExists = await _context.Subsidiaries.AnyAsync(s => s.Id == request.SubsidiaryId);
+        var subsidiaryExists = await _context.SubsidiaryCompanies.AnyAsync(s => s.Id == request.SubsidiaryCompanyId);
         if (!subsidiaryExists)
         {
-            ModelState.AddModelError(nameof(request.SubsidiaryId), "Subsidiary not found.");
+            ModelState.AddModelError(nameof(request.SubsidiaryCompanyId), "Subsidiary company not found.");
             return ValidationProblem(ModelState);
         }
 
-        agency.SubsidiaryId = request.SubsidiaryId;
+        agency.SubsidiaryCompanyId = request.SubsidiaryCompanyId;
         agency.Name = request.Name;
         agency.Website = request.Website;
         agency.Email = request.Email;
@@ -114,7 +114,7 @@ public class AutoInsuranceAgenciesController : ControllerBase
         agency.Memo = request.Memo;
 
         await _context.SaveChangesAsync();
-        await _context.Entry(agency).Reference(a => a.Subsidiary).LoadAsync();
+        await _context.Entry(agency).Reference(a => a.SubsidiaryCompany).LoadAsync();
 
         return Ok(ToDto(agency));
     }
@@ -124,8 +124,8 @@ public class AutoInsuranceAgenciesController : ControllerBase
         return new AutoInsuranceAgencyDto(
             agency.Id,
             agency.RowId,
-            agency.SubsidiaryId,
-            agency.Subsidiary?.Name ?? string.Empty,
+            agency.SubsidiaryCompanyId,
+            agency.SubsidiaryCompany?.Name ?? string.Empty,
             agency.Name,
             agency.Website,
             agency.Email,

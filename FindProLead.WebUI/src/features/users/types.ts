@@ -5,9 +5,9 @@ export interface User {
   email: string;
   userName: string;
   isLocked: boolean;
-  subsidiaryId: number | null;
-  verifierId: number | null;
-  clientId: number | null;
+  verifierCompanyId: number | null;
+  autoInsuranceAgencyId: number | null;
+  role?: string | null;
   createdOn: string;
 }
 
@@ -16,16 +16,16 @@ export interface CreateUserRequest {
   lastName: string;
   email: string;
   password: string;
-  subsidiaryId?: number;
-  verifierId?: number;
-  clientId?: number;
+  verifierCompanyId?: number;
+  autoInsuranceAgencyId?: number;
+  role?: string;
 }
 
 export interface UpdateUserRequest {
   firstName: string;
   lastName: string;
   email: string;
-  subsidiaryId?: number;
-  verifierId?: number;
-  clientId?: number;
+  verifierCompanyId?: number;
+  autoInsuranceAgencyId?: number;
+  role?: string;
 }

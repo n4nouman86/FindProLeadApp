@@ -16,9 +16,9 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import type { AutoInsuranceAgency } from "./types";
-import type { Subsidiary } from "../subsidiaries/types";
+import type { SubsidiaryCompany } from "../subsidiaryCompanies/types";
 import { createAutoInsuranceAgency } from "./autoInsuranceAgenciesApi";
-import { getSubsidiaries } from "../subsidiaries/subsidiariesApi";
+import { getSubsidiaryCompanies } from "../subsidiaryCompanies/subsidiaryCompaniesApi";
 import { useNotification } from "../../shared/notifications/useNotification";
 import { getErrorMessage } from "../../shared/api/apiClient";
 import { US_STATES, type UsState } from "../../shared/usStates";
@@ -30,7 +30,7 @@ interface CreateAutoInsuranceAgencyDialogProps {
 }
 
 export default function CreateAutoInsuranceAgencyDialog({ open, onClose, onSaved }: CreateAutoInsuranceAgencyDialogProps) {
-  const [subsidiaries, setSubsidiaries] = useState<Subsidiary[]>([]);
+  const [subsidiaries, setSubsidiaries] = useState<SubsidiaryCompany[]>([]);
   const [subsidiaryId, setSubsidiaryId] = useState("");
   const [name, setName] = useState("");
   const [website, setWebsite] = useState("");
@@ -50,7 +50,7 @@ export default function CreateAutoInsuranceAgencyDialog({ open, onClose, onSaved
 
   useEffect(() => {
     if (open) {
-      getSubsidiaries().then(setSubsidiaries).catch(() => setSubsidiaries([]));
+      getSubsidiaryCompanies().then(setSubsidiaries).catch(() => setSubsidiaries([]));
     }
   }, [open]);
 
@@ -60,7 +60,7 @@ export default function CreateAutoInsuranceAgencyDialog({ open, onClose, onSaved
     setSaving(true);
     try {
       const saved = await createAutoInsuranceAgency({
-        subsidiaryId: Number(subsidiaryId),
+        subsidiaryCompanyId: Number(subsidiaryId),
         name,
         website: website || undefined,
         email: email || undefined,
@@ -106,7 +106,7 @@ export default function CreateAutoInsuranceAgencyDialog({ open, onClose, onSaved
         >
           <TextField
             select
-            label="Subsidiary"
+            label="Subsidiary Company"
             value={subsidiaryId}
             onChange={(e) => setSubsidiaryId(e.target.value)}
             required

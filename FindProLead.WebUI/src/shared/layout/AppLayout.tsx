@@ -11,7 +11,6 @@ import {
   ListItemText,
   Box,
   Button,
-  Collapse,
   IconButton,
   Menu,
   MenuItem,
@@ -24,12 +23,6 @@ import PeopleIcon from "@mui/icons-material/People";
 import BusinessIcon from "@mui/icons-material/Business";
 import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
 import ApartmentIcon from "@mui/icons-material/Apartment";
-import ShieldIcon from "@mui/icons-material/Shield";
-import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
-import TimeToLeaveIcon from "@mui/icons-material/TimeToLeave";
-import SettingsIcon from "@mui/icons-material/Settings";
-import ExpandLessIcon from "@mui/icons-material/ExpandLess";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import LogoutIcon from "@mui/icons-material/Logout";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
@@ -42,18 +35,16 @@ import { useThemeMode } from "../useThemeMode";
 const DRAWER_WIDTH = 264;
 const DRAWER_WIDTH_COLLAPSED = 76;
 
-const navItems = [
-  { label: "Dashboard", path: "/", icon: <DashboardIcon /> },
+const overviewItems = [{ label: "Dashboard", path: "/", icon: <DashboardIcon /> }];
+
+const mainItems = [
   { label: "Users", path: "/users", icon: <PeopleIcon /> },
-  { label: "Subsidiaries", path: "/subsidiaries", icon: <BusinessIcon /> },
-  { label: "Verifier Agencies", path: "/verifier-agencies", icon: <VerifiedUserIcon /> },
-  { label: "Auto Insurance Agencies", path: "/auto-insurance-agencies", icon: <ApartmentIcon /> },
+  { label: "Verifier Companies", path: "/verifier-companies", icon: <VerifiedUserIcon /> },
+  { label: "Subsidiary Companies", path: "/subsidiary-companies", icon: <BusinessIcon /> },
 ];
 
-const autoLeadSettingItems = [
-  { label: "Auto Insurance Companies", path: "/auto-insurance-companies", icon: <ShieldIcon /> },
-  { label: "Vehicle Makes", path: "/vehicle-makes", icon: <DirectionsCarIcon /> },
-  { label: "Vehicle Models", path: "/vehicle-models", icon: <TimeToLeaveIcon /> },
+const autoItems = [
+  { label: "Auto Insurance Agencies", path: "/auto-insurance-agencies", icon: <ApartmentIcon /> },
 ];
 
 function navButtonSx(collapsed: boolean) {
@@ -153,7 +144,6 @@ export default function AppLayout() {
   const location = useLocation();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [collapsed, setCollapsed] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(true);
 
   function handleLogout() {
     setAnchorEl(null);
@@ -162,7 +152,7 @@ export default function AppLayout() {
   }
 
   const drawerWidth = collapsed ? DRAWER_WIDTH_COLLAPSED : DRAWER_WIDTH;
-  const currentTitle = [...navItems, ...autoLeadSettingItems].find(
+  const currentTitle = [...overviewItems, ...mainItems, ...autoItems].find(
     (item) => item.path === location.pathname,
   )?.label;
   const initials = `${user?.firstName?.[0] ?? ""}${user?.lastName?.[0] ?? ""}`.toUpperCase();
@@ -205,10 +195,10 @@ export default function AppLayout() {
                 color="text.secondary"
                 sx={{ px: 1.5, display: "block", fontSize: "0.62rem" }}
               >
-                Menu
+                Overview
               </Typography>
             )}
-            {navItems.map((item) => (
+            {overviewItems.map((item) => (
               <Tooltip
                 key={item.path}
                 title={collapsed ? item.label : ""}
@@ -232,50 +222,54 @@ export default function AppLayout() {
                 color="text.secondary"
                 sx={{ px: 1.5, mt: 1.5, display: "block", fontSize: "0.62rem" }}
               >
-                Auto Lead Setting
+                Main
               </Typography>
             )}
-            <Tooltip title={collapsed ? "Auto Lead Setting" : ""} placement="right" arrow>
-              <ListItemButton
-                selected={autoLeadSettingItems.some((item) => item.path === location.pathname)}
-                onClick={() => {
-                  if (collapsed) {
-                    setCollapsed(false);
-                    setSettingsOpen(true);
-                  } else {
-                    setSettingsOpen((prev) => !prev);
-                  }
-                }}
-                sx={navButtonSx(collapsed)}
+            {mainItems.map((item) => (
+              <Tooltip
+                key={item.path}
+                title={collapsed ? item.label : ""}
+                placement="right"
+                arrow
               >
-                <ListItemIcon>
-                  <SettingsIcon />
-                </ListItemIcon>
-                {!collapsed && <ListItemText primary="Auto Lead Setting" />}
-                {!collapsed &&
-                  (settingsOpen ? (
-                    <ExpandLessIcon fontSize="small" />
-                  ) : (
-                    <ExpandMoreIcon fontSize="small" />
-                  ))}
-              </ListItemButton>
-            </Tooltip>
+                <ListItemButton
+                  selected={location.pathname === item.path}
+                  onClick={() => navigate(item.path)}
+                  sx={navButtonSx(collapsed)}
+                >
+                  <ListItemIcon>{item.icon}</ListItemIcon>
+                  {!collapsed && <ListItemText primary={item.label} />}
+                </ListItemButton>
+              </Tooltip>
+            ))}
 
-            <Collapse in={settingsOpen && !collapsed} timeout="auto" unmountOnExit>
-              <List component="div" disablePadding>
-                {autoLeadSettingItems.map((item) => (
-                  <ListItemButton
-                    key={item.path}
-                    selected={location.pathname === item.path}
-                    onClick={() => navigate(item.path)}
-                    sx={[navButtonSx(false), { pl: 2 }]}
-                  >
-                    <ListItemIcon>{item.icon}</ListItemIcon>
-                    <ListItemText primary={item.label} />
-                  </ListItemButton>
-                ))}
-              </List>
-            </Collapse>
+            {!collapsed && (
+              <Typography
+                variant="overline"
+                color="text.secondary"
+                sx={{ px: 1.5, mt: 1.5, display: "block", fontSize: "0.62rem" }}
+              >
+                Auto
+              </Typography>
+            )}
+            {autoItems.map((item) => (
+              <Tooltip
+                key={item.path}
+                title={collapsed ? item.label : ""}
+                placement="right"
+                arrow
+              >
+                <ListItemButton
+                  selected={location.pathname === item.path}
+                  onClick={() => navigate(item.path)}
+                  sx={navButtonSx(collapsed)}
+                >
+                  <ListItemIcon>{item.icon}</ListItemIcon>
+                  {!collapsed && <ListItemText primary={item.label} />}
+                </ListItemButton>
+              </Tooltip>
+            ))}
+
           </List>
         </Box>
       </Drawer>

@@ -82,7 +82,7 @@ export default function AutoInsuranceAgenciesPage() {
           <TableHead>
             <TableRow>
               <TableCell>Name</TableCell>
-              <TableCell>Subsidiary</TableCell>
+              <TableCell>Subsidiary Company</TableCell>
               <TableCell>Website</TableCell>
               <TableCell>Email</TableCell>
               <TableCell>Phone</TableCell>
@@ -114,7 +114,7 @@ export default function AutoInsuranceAgenciesPage() {
                 agencies.map((agency) => (
                   <TableRow key={agency.id} hover>
                     <TableCell>{agency.name}</TableCell>
-                    <TableCell>{agency.subsidiaryName}</TableCell>
+                    <TableCell>{agency.subsidiaryCompanyName}</TableCell>
                     <TableCell>
                       {agency.website ? (
                         <Link href={agency.website} target="_blank" rel="noopener noreferrer">

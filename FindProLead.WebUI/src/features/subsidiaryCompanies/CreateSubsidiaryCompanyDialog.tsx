@@ -11,19 +11,24 @@ import {
   Alert,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import type { VehicleMake } from "./types";
-import { createVehicleMake } from "./vehicleMakesApi";
+import type { SubsidiaryCompany } from "./types";
+import { createSubsidiaryCompany } from "./subsidiaryCompaniesApi";
 import { useNotification } from "../../shared/notifications/useNotification";
 import { getErrorMessage } from "../../shared/api/apiClient";
 
-interface CreateVehicleMakeDialogProps {
+interface CreateSubsidiaryCompanyDialogProps {
   open: boolean;
   onClose: () => void;
-  onSaved: (make: VehicleMake) => void;
+  onSaved: (subsidiary: SubsidiaryCompany) => void;
 }
 
-export default function CreateVehicleMakeDialog({ open, onClose, onSaved }: CreateVehicleMakeDialogProps) {
+export default function CreateSubsidiaryCompanyDialog({ open, onClose, onSaved }: CreateSubsidiaryCompanyDialogProps) {
   const [name, setName] = useState("");
+  const [website, setWebsite] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [linkedin, setLinkedin] = useState("");
+  const [memo, setMemo] = useState("");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const { notify } = useNotification();
@@ -33,12 +38,19 @@ export default function CreateVehicleMakeDialog({ open, onClose, onSaved }: Crea
     setError("");
     setSaving(true);
     try {
-      const saved = await createVehicleMake({ name });
+      const saved = await createSubsidiaryCompany({
+        name,
+        website: website || undefined,
+        email: email || undefined,
+        phone: phone || undefined,
+        linkedin: linkedin || undefined,
+        memo: memo || undefined,
+      });
       onSaved(saved);
       onClose();
-      notify("Vehicle make created successfully.");
+      notify("Subsidiary company created successfully.");
     } catch (err) {
-      const message = getErrorMessage(err, "Could not create vehicle make. Please check the details and try again.");
+      const message = getErrorMessage(err, "Could not create the subsidiary company. Please check the details and try again.");
       setError(message);
       notify(message, "error");
     } finally {
@@ -50,7 +62,7 @@ export default function CreateVehicleMakeDialog({ open, onClose, onSaved }: Crea
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <Box component="form" onSubmit={handleSubmit}>
         <DialogTitle sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          Add Vehicle Make
+          Add Subsidiary Company
           <IconButton onClick={onClose} size="small">
             <CloseIcon fontSize="small" />
           </IconButton>
@@ -62,6 +74,44 @@ export default function CreateVehicleMakeDialog({ open, onClose, onSaved }: Crea
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
+            fullWidth
+          />
+
+          <TextField
+            label="Website"
+            value={website}
+            onChange={(e) => setWebsite(e.target.value)}
+            fullWidth
+          />
+
+          <TextField
+            label="Email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            fullWidth
+          />
+
+          <TextField
+            label="Phone"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            fullWidth
+          />
+
+          <TextField
+            label="LinkedIn"
+            value={linkedin}
+            onChange={(e) => setLinkedin(e.target.value)}
+            fullWidth
+          />
+
+          <TextField
+            label="Memo"
+            value={memo}
+            onChange={(e) => setMemo(e.target.value)}
+            multiline
+            minRows={2}
             fullWidth
           />
 

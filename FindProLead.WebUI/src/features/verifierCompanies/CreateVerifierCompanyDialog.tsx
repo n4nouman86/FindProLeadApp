@@ -11,19 +11,23 @@ import {
   Alert,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import type { VehicleModel } from "./types";
-import { createVehicleModel } from "./vehicleModelsApi";
+import type { VerifierCompany } from "./types";
+import { createVerifierCompany } from "./verifierCompaniesApi";
 import { useNotification } from "../../shared/notifications/useNotification";
 import { getErrorMessage } from "../../shared/api/apiClient";
 
-interface CreateVehicleModelDialogProps {
+interface CreateVerifierCompanyDialogProps {
   open: boolean;
   onClose: () => void;
-  onSaved: (model: VehicleModel) => void;
+  onSaved: (company: VerifierCompany) => void;
 }
 
-export default function CreateVehicleModelDialog({ open, onClose, onSaved }: CreateVehicleModelDialogProps) {
+export default function CreateVerifierCompanyDialog({ open, onClose, onSaved }: CreateVerifierCompanyDialogProps) {
   const [name, setName] = useState("");
+  const [website, setWebsite] = useState("");
+  const [email, setEmail] = useState("");
+  const [linkedin, setLinkedin] = useState("");
+  const [memo, setMemo] = useState("");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const { notify } = useNotification();
@@ -33,12 +37,18 @@ export default function CreateVehicleModelDialog({ open, onClose, onSaved }: Cre
     setError("");
     setSaving(true);
     try {
-      const saved = await createVehicleModel({ name });
+      const saved = await createVerifierCompany({
+        name,
+        website: website || undefined,
+        email: email || undefined,
+        linkedin: linkedin || undefined,
+        memo: memo || undefined,
+      });
       onSaved(saved);
       onClose();
-      notify("Vehicle model created successfully.");
+      notify("Verifier company created successfully.");
     } catch (err) {
-      const message = getErrorMessage(err, "Could not create vehicle model. Please check the details and try again.");
+      const message = getErrorMessage(err, "Could not create the verifier company. Please check the details and try again.");
       setError(message);
       notify(message, "error");
     } finally {
@@ -50,7 +60,7 @@ export default function CreateVehicleModelDialog({ open, onClose, onSaved }: Cre
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <Box component="form" onSubmit={handleSubmit}>
         <DialogTitle sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          Add Vehicle Model
+          Add Verifier Company
           <IconButton onClick={onClose} size="small">
             <CloseIcon fontSize="small" />
           </IconButton>
@@ -62,6 +72,37 @@ export default function CreateVehicleModelDialog({ open, onClose, onSaved }: Cre
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
+            fullWidth
+          />
+
+          <TextField
+            label="Website"
+            value={website}
+            onChange={(e) => setWebsite(e.target.value)}
+            fullWidth
+          />
+
+          <TextField
+            label="Email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            fullWidth
+          />
+
+          <TextField
+            label="LinkedIn"
+            value={linkedin}
+            onChange={(e) => setLinkedin(e.target.value)}
+            fullWidth
+          />
+
+          <TextField
+            label="Memo"
+            value={memo}
+            onChange={(e) => setMemo(e.target.value)}
+            multiline
+            minRows={2}
             fullWidth
           />
 

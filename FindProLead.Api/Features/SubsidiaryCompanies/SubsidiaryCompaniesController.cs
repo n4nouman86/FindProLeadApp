@@ -3,24 +3,24 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FindProLead.Api.Data;
 
-namespace FindProLead.Api.Features.Subsidiaries;
+namespace FindProLead.Api.Features.SubsidiaryCompanies;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/subsidiary-companies")]
 [Authorize]
-public class SubsidiariesController : ControllerBase
+public class SubsidiaryCompaniesController : ControllerBase
 {
     private readonly AppDbContext _context;
 
-    public SubsidiariesController(AppDbContext context)
+    public SubsidiaryCompaniesController(AppDbContext context)
     {
         _context = context;
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<SubsidiaryDto>>> GetAll()
+    public async Task<ActionResult<IEnumerable<SubsidiaryCompanyDto>>> GetAll()
     {
-        var subsidiaries = await _context.Subsidiaries
+        var subsidiaries = await _context.SubsidiaryCompanies
             .OrderByDescending(s => s.CreatedOn)
             .Select(s => ToDto(s))
             .ToListAsync();
@@ -29,9 +29,9 @@ public class SubsidiariesController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<SubsidiaryDto>> GetById(int id)
+    public async Task<ActionResult<SubsidiaryCompanyDto>> GetById(int id)
     {
-        var subsidiary = await _context.Subsidiaries.FindAsync(id);
+        var subsidiary = await _context.SubsidiaryCompanies.FindAsync(id);
         if (subsidiary is null)
         {
             return NotFound();
@@ -41,9 +41,9 @@ public class SubsidiariesController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<SubsidiaryDto>> Create(CreateSubsidiaryRequest request)
+    public async Task<ActionResult<SubsidiaryCompanyDto>> Create(CreateSubsidiaryCompanyRequest request)
     {
-        var subsidiary = new Subsidiary
+        var subsidiary = new SubsidiaryCompany
         {
             Name = request.Name,
             Website = request.Website,
@@ -53,7 +53,7 @@ public class SubsidiariesController : ControllerBase
             Memo = request.Memo
         };
 
-        _context.Subsidiaries.Add(subsidiary);
+        _context.SubsidiaryCompanies.Add(subsidiary);
         await _context.SaveChangesAsync();
 
         var dto = ToDto(subsidiary);
@@ -61,9 +61,9 @@ public class SubsidiariesController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult<SubsidiaryDto>> Update(int id, UpdateSubsidiaryRequest request)
+    public async Task<ActionResult<SubsidiaryCompanyDto>> Update(int id, UpdateSubsidiaryCompanyRequest request)
     {
-        var subsidiary = await _context.Subsidiaries.FindAsync(id);
+        var subsidiary = await _context.SubsidiaryCompanies.FindAsync(id);
         if (subsidiary is null)
         {
             return NotFound();
@@ -81,9 +81,9 @@ public class SubsidiariesController : ControllerBase
         return Ok(ToDto(subsidiary));
     }
 
-    private static SubsidiaryDto ToDto(Subsidiary subsidiary)
+    private static SubsidiaryCompanyDto ToDto(SubsidiaryCompany subsidiary)
     {
-        return new SubsidiaryDto(
+        return new SubsidiaryCompanyDto(
             subsidiary.Id,
             subsidiary.RowId,
             subsidiary.Name,

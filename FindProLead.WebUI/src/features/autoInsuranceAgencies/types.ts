@@ -1,8 +1,8 @@
 export interface AutoInsuranceAgency {
   id: number;
   rowId: string;
-  subsidiaryId: number;
-  subsidiaryName: string;
+  subsidiaryCompanyId: number;
+  subsidiaryCompanyName: string;
   name: string;
   website: string | null;
   email: string | null;
@@ -19,7 +19,7 @@ export interface AutoInsuranceAgency {
 }
 
 export interface CreateAutoInsuranceAgencyRequest {
-  subsidiaryId: number;
+  subsidiaryCompanyId: number;
   name: string;
   website?: string;
   email?: string;
@@ -35,7 +35,7 @@ export interface CreateAutoInsuranceAgencyRequest {
 }
 
 export interface UpdateAutoInsuranceAgencyRequest {
-  subsidiaryId: number;
+  subsidiaryCompanyId: number;
   name: string;
   website?: string;
   email?: string;

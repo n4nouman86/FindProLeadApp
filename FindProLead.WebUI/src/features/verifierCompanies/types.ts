@@ -1,29 +1,26 @@
-export interface Subsidiary {
+export interface VerifierCompany {
   id: number;
   rowId: string;
   name: string;
   website: string | null;
   email: string | null;
-  phone: string | null;
   linkedin: string | null;
   memo: string | null;
   createdOn: string;
 }
 
-export interface CreateSubsidiaryRequest {
+export interface CreateVerifierCompanyRequest {
   name: string;
   website?: string;
   email?: string;
-  phone?: string;
   linkedin?: string;
   memo?: string;
 }
 
-export interface UpdateSubsidiaryRequest {
+export interface UpdateVerifierCompanyRequest {
   name: string;
   website?: string;
   email?: string;
-  phone?: string;
   linkedin?: string;
   memo?: string;
 }

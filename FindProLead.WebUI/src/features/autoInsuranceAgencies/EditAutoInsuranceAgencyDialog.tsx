@@ -16,9 +16,9 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import type { AutoInsuranceAgency } from "./types";
-import type { Subsidiary } from "../subsidiaries/types";
+import type { SubsidiaryCompany } from "../subsidiaryCompanies/types";
 import { updateAutoInsuranceAgency } from "./autoInsuranceAgenciesApi";
-import { getSubsidiaries } from "../subsidiaries/subsidiariesApi";
+import { getSubsidiaryCompanies } from "../subsidiaryCompanies/subsidiaryCompaniesApi";
 import { useNotification } from "../../shared/notifications/useNotification";
 import { getErrorMessage } from "../../shared/api/apiClient";
 import { US_STATES, type UsState } from "../../shared/usStates";
@@ -31,8 +31,8 @@ interface EditAutoInsuranceAgencyDialogProps {
 }
 
 export default function EditAutoInsuranceAgencyDialog({ open, agency, onClose, onSaved }: EditAutoInsuranceAgencyDialogProps) {
-  const [subsidiaries, setSubsidiaries] = useState<Subsidiary[]>([]);
-  const [subsidiaryId, setSubsidiaryId] = useState(String(agency.subsidiaryId));
+  const [subsidiaries, setSubsidiaries] = useState<SubsidiaryCompany[]>([]);
+  const [subsidiaryId, setSubsidiaryId] = useState(String(agency.subsidiaryCompanyId));
   const [name, setName] = useState(agency.name);
   const [website, setWebsite] = useState(agency.website ?? "");
   const [email, setEmail] = useState(agency.email ?? "");
@@ -59,7 +59,7 @@ export default function EditAutoInsuranceAgencyDialog({ open, agency, onClose, o
 
   useEffect(() => {
     if (open) {
-      getSubsidiaries().then(setSubsidiaries).catch(() => setSubsidiaries([]));
+      getSubsidiaryCompanies().then(setSubsidiaries).catch(() => setSubsidiaries([]));
     }
   }, [open]);
 
@@ -69,7 +69,7 @@ export default function EditAutoInsuranceAgencyDialog({ open, agency, onClose, o
     setSaving(true);
     try {
       const saved = await updateAutoInsuranceAgency(agency.id, {
-        subsidiaryId: Number(subsidiaryId),
+        subsidiaryCompanyId: Number(subsidiaryId),
         name,
         website: website || undefined,
         email: email || undefined,
@@ -115,7 +115,7 @@ export default function EditAutoInsuranceAgencyDialog({ open, agency, onClose, o
         >
           <TextField
             select
-            label="Subsidiary"
+            label="Subsidiary Company"
             value={subsidiaryId}
             onChange={(e) => setSubsidiaryId(e.target.value)}
             required
