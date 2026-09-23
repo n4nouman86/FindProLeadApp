@@ -16,6 +16,7 @@ import {
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
+import LockResetIcon from "@mui/icons-material/LockReset";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import type { User } from "./types";
 import type { VerifierCompany } from "../verifierCompanies/types";
@@ -25,16 +26,20 @@ import { getVerifierCompanies } from "../verifierCompanies/verifierCompaniesApi"
 import { getAutoInsuranceAgencies } from "../autoInsuranceAgencies/autoInsuranceAgenciesApi";
 import CreateUserDialog from "./CreateUserDialog";
 import EditUserDialog from "./EditUserDialog";
+import ChangeUserPasswordDialog from "./ChangeUserPasswordDialog";
 import PageHeader from "../../shared/components/PageHeader";
 import EmptyState from "../../shared/components/EmptyState";
 import TableSkeleton from "../../shared/components/TableSkeleton";
+import { useAuth } from "../auth/useAuth";
 
 export default function UsersPage() {
+  const { user: loggedInUser } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [createOpen, setCreateOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [changingPasswordUser, setChangingPasswordUser] = useState<User | null>(null);
   const [verifierCompanies, setVerifierCompanies] = useState<VerifierCompany[]>([]);
   const [clientAgencies, setClientAgencies] = useState<AutoInsuranceAgency[]>([]);
 
@@ -145,7 +150,10 @@ export default function UsersPage() {
                         >
                           {getInitials(user.firstName, user.lastName)}
                         </Avatar>
-                        <Box>{user.firstName} {user.lastName}</Box>
+                        <Box>
+                          {user.firstName} {user.lastName}
+                          {loggedInUser?.email === user.email ? " (you)" : ""}
+                        </Box>
                       </Box>
                     </TableCell>
                     <TableCell>{user.userName}</TableCell>
@@ -184,7 +192,20 @@ export default function UsersPage() {
                       })}
                     </TableCell>
                     <TableCell align="right">
-                      <IconButton size="small" onClick={() => setEditingUser(user)}>
+                      <IconButton
+                        size="small"
+                        onClick={() => setChangingPasswordUser(user)}
+                        aria-label={`Change password for ${user.email}`}
+                        title="Change password"
+                      >
+                        <LockResetIcon fontSize="small" />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        onClick={() => setEditingUser(user)}
+                        aria-label={`Edit ${user.email}`}
+                        title="Edit user"
+                      >
                         <EditIcon fontSize="small" />
                       </IconButton>
                     </TableCell>
@@ -209,6 +230,15 @@ export default function UsersPage() {
           user={editingUser}
           onClose={() => setEditingUser(null)}
           onSaved={handleSaved}
+        />
+      )}
+
+      {changingPasswordUser && (
+        <ChangeUserPasswordDialog
+          key={changingPasswordUser.id}
+          open={Boolean(changingPasswordUser)}
+          user={changingPasswordUser}
+          onClose={() => setChangingPasswordUser(null)}
         />
       )}
     </Box>

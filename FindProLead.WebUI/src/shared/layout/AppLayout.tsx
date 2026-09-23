@@ -23,6 +23,7 @@ import PeopleIcon from "@mui/icons-material/People";
 import BusinessIcon from "@mui/icons-material/Business";
 import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
 import ApartmentIcon from "@mui/icons-material/Apartment";
+import DirectionsCarOutlinedIcon from "@mui/icons-material/DirectionsCarOutlined";
 import LogoutIcon from "@mui/icons-material/Logout";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
@@ -45,6 +46,7 @@ const mainItems = [
 
 const autoItems = [
   { label: "Auto Insurance Agencies", path: "/auto-insurance-agencies", icon: <ApartmentIcon /> },
+  { label: "Auto Leads", path: "/auto-leads", icon: <DirectionsCarOutlinedIcon /> },
 ];
 
 function navButtonSx(collapsed: boolean) {
@@ -398,7 +400,7 @@ export default function AppLayout() {
                 </Avatar>
                 <Box>
                   <Typography variant="body2" sx={{ fontWeight: 700 }}>
-                    {user?.firstName} {user?.lastName}
+                    You: {user?.firstName} {user?.lastName}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
                     {user?.email}

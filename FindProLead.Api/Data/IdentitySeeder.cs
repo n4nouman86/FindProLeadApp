@@ -35,5 +35,20 @@ public static class IdentitySeeder
             await userManager.CreateAsync(adminUser, "Admin@12345");
             await userManager.AddToRoleAsync(adminUser, "Admin");
         }
+        else if (!await userManager.CheckPasswordAsync(adminUser, "Admin@12345"))
+        {
+            var resetToken = await userManager.GeneratePasswordResetTokenAsync(adminUser);
+            var resetResult = await userManager.ResetPasswordAsync(adminUser, resetToken, "Admin@12345");
+            if (!resetResult.Succeeded)
+            {
+                throw new InvalidOperationException("Could not synchronize the development Admin password.");
+            }
+        }
+
+        var adminRoles = await userManager.GetRolesAsync(adminUser);
+        if (!adminRoles.Contains("Admin"))
+        {
+            await userManager.AddToRoleAsync(adminUser, "Admin");
+        }
     }
 }

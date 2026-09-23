@@ -31,6 +31,11 @@ public class AuthController : ControllerBase
         }
 
         var roles = await _userManager.GetRolesAsync(user);
+        if (!roles.Any(role => string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase)))
+        {
+            return Unauthorized();
+        }
+
         var jwtSection = _configuration.GetSection("Jwt");
         var expiryMinutes = jwtSection.GetValue<int>("ExpiryMinutes");
         var expiresAt = DateTime.UtcNow.AddMinutes(expiryMinutes);

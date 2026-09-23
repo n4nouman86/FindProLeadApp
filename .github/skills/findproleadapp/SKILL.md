@@ -5,6 +5,9 @@ description: 'Use when working on the FindProLeadApp workspace (FindProLead.Api 
 
 # FindProLeadApp
 
+## Communication
+- Conversation ke replies Roman Urdu mein dein, jab tak user kisi aur language ka na kahe.
+
 ## Structure
 - `FindProLead.Api/` — ASP.NET Core Web API (.NET 10) using MVC controllers organized by Vertical Slice Architecture in `Features/<FeatureName>/`, `Program.cs` entry point, OpenAPI enabled in Development.
 - `FindProLead.WebUI/` — React 19 + Vite frontend, TypeScript (`react-ts` Vite template, ESLint flat config `eslint.config.js`), organized by feature folders under `src/features/<FeatureName>/` (mirrors backend vertical slices), with `src/shared/` for cross-feature code (e.g. `shared/api/apiClient.ts`).

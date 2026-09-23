@@ -123,6 +123,30 @@ public class UsersController : ControllerBase
         return Ok(await ToDto(user));
     }
 
+    [HttpPut("{id}/password")]
+    public async Task<IActionResult> ChangePassword(string id, ChangePasswordRequest request)
+    {
+        var user = await _userManager.FindByIdAsync(id);
+        if (user is null)
+        {
+            return NotFound();
+        }
+
+        var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+        var result = await _userManager.ResetPasswordAsync(user, resetToken, request.NewPassword);
+        if (!result.Succeeded)
+        {
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(error.Code, error.Description);
+            }
+
+            return ValidationProblem(ModelState);
+        }
+
+        return NoContent();
+    }
+
     private async Task<UserDto> ToDto(ApplicationUser user)
     {
         var isLocked = user.LockoutEnd != null && user.LockoutEnd > DateTimeOffset.UtcNow;

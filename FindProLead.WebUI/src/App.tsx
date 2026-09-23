@@ -7,6 +7,7 @@ import UsersPage from "./features/users/UsersPage";
 import SubsidiaryCompaniesPage from "./features/subsidiaryCompanies/SubsidiaryCompaniesPage";
 import VerifierCompaniesPage from "./features/verifierCompanies/VerifierCompaniesPage";
 import AutoInsuranceAgenciesPage from "./features/autoInsuranceAgencies/AutoInsuranceAgenciesPage";
+import AutoLeadsPage from "./features/autoLeads/AutoLeadsPage";
 import AppLayout from "./shared/layout/AppLayout";
 import { NotificationProvider } from "./shared/notifications/NotificationProvider";
 
@@ -29,6 +30,7 @@ function App() {
               <Route path="/subsidiary-companies" element={<SubsidiaryCompaniesPage />} />
               <Route path="/verifier-companies" element={<VerifierCompaniesPage />} />
               <Route path="/auto-insurance-agencies" element={<AutoInsuranceAgenciesPage />} />
+              <Route path="/auto-leads" element={<AutoLeadsPage />} />
             </Route>
           </Routes>
         </BrowserRouter>

@@ -29,3 +29,7 @@ export interface UpdateUserRequest {
   autoInsuranceAgencyId?: number;
   role?: string;
 }
+
+export interface ChangePasswordRequest {
+  newPassword: string;
+}
