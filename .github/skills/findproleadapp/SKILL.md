@@ -10,15 +10,17 @@ description: 'Use when working on the FindProLeadApp workspace (FindProLead.Api 
 - `FindProLead.WebUI/` — React 19 + Vite frontend, TypeScript (`react-ts` Vite template, ESLint flat config `eslint.config.js`), organized by feature folders under `src/features/<FeatureName>/` (mirrors backend vertical slices), with `src/shared/` for cross-feature code (e.g. `shared/api/apiClient.ts`).
 
 ## Commands
-API (from `FindProLead.Api/`):
-- `dotnet run` — start the API
-- `dotnet build` — build only
+Always run commands from the project directory, not from the workspace root. When the terminal starts at `D:\VS Code\FindProLeadApp`, enter the relevant folder first with `Push-Location`.
 
-WebUI (from `FindProLead.WebUI/`):
-- `npm install` — install deps
-- `npm run dev` — start Vite dev server
-- `npm run build` — production build
-- `npm run lint` — run ESLint
+API:
+- `Push-Location FindProLead.Api; dotnet run` — start the API
+- `Push-Location FindProLead.Api; dotnet build` — build only
+
+WebUI:
+- `Push-Location FindProLead.WebUI; npm install` — install deps
+- `Push-Location FindProLead.WebUI; npm run dev` — start Vite dev server
+- `Push-Location FindProLead.WebUI; npm run build` — production build
+- `Push-Location FindProLead.WebUI; npm run lint` — run ESLint
 
 ## Conventions
 - API uses Vertical Slice Architecture: each feature lives in its own folder under `Features/<FeatureName>/`, containing its controller, models, and related logic together (not split across shared `Controllers/`, `Models/` folders).
